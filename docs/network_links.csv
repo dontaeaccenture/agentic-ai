@@ -1,0 +1,9 @@
+Link_ID,From,To,Bandwidth_Gbps,Latency_ms,Packet_Loss_%
+VA-AZ,VA,AZ,10,3.0,0.02
+VA-CO,VA,CO,5,25.0,0.05
+AZ-CO,AZ,CO,2,50.0,0.1
+VA-CORE1,VA-CoreSwitch1,VA-EdgeSwitch1,40,0.5,0.01
+VA-CORE2,VA-CoreSwitch2,VA-EdgeSwitch2,40,0.5,0.01
+AZ-CORE1,AZ-CoreSwitch1,AZ-EdgeSwitch1,20,0.4,0.01
+AZ-CORE2,AZ-CoreSwitch2,AZ-EdgeSwitch2,20,0.4,0.01
+CO-CORE1,CO-CoreSwitch1,CO-EdgeSwitch1,10,0.3,0.005

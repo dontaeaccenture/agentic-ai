@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agentic AI – Cloud Assistant</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a1a;
+      --accent: #0061f2;
+      --subtle: #f0f2f5;
+      --border: #d0d7de;
+      --bubble: #e8f1ff;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background-color: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header img {
+      height: 36px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 16px;
+      font-weight: 500;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: var(--accent);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      border: 1px solid var(--accent);
+      background-color: transparent;
+      color: var(--accent);
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .tab-button:hover {
+      background-color: var(--accent);
+      color: #fff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    #chat, #docs {
+      background-color: var(--subtle);
+      padding: 18px;
+      border-radius: 10px;
+      height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      border: 1px solid var(--border);
+    }
+
+    textarea {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 15px;
+      resize: none;
+      box-sizing: border-box;
+    }
+
+    .send {
+      margin-top: 10px;
+      padding: 12px 26px;
+      background-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .bubble {
+      display: inline-block;
+      margin: 6px 6px 6px 0;
+      padding: 8px 14px;
+      background-color: var(--bubble);
+      color: var(--accent);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .bubble:hover {
+      background-color: #dbeaff;
+    }
+    .callout {
+  background-color: #e8f1ff;
+  color: #003366;
+  padding: 18px;
+  border-left: 5px solid #0061f2;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.callout strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #002244;
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_logo_icon.svg/1024px-Blue_logo_icon.svg.png" alt="Logo">
+      <strong style="font-size: 1.2rem;">Agentic AI</strong>
+    </div>
+    <nav class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Chat</a>
+      <a href="#">Docs</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1>💬 Chat Assistant</h1>
+
+    <div class="tabs">
+      <button class="tab-button" onclick="switchTab('chatTab')">💬 Chat</button>
+      <button class="tab-button" onclick="switchTab('docsTab')">📂 View Docs</button>
+    </div>
+
+    <div id="chatTab" class="tab-content active">
+      <div id="suggestions">
+        <span class="bubble" onclick="setInput('Generate a 3-year AWS and Azure migration plan')">💡 Generate migration plan</span>
+        <span class="bubble" onclick="setInput('Which workloads should I migrate first based on complexity?')">🧩 Prioritize workloads</span>
+        <span class="bubble" onclick="setInput('Summarize the key points from the uploaded infrastructure docs')">🧠 Summarize infrastructure</span>
+      </div>
+      <div id="chat"></div>
+      <textarea id="input" placeholder="Ask your migration assistant..." rows="4"></textarea>
+      <button class="send" onclick="send()">Send</button>
+      <button class="send" onclick="downloadPlan()">📥 Download Plan</button>
+    </div>
+
+    <div id="docsTab" class="tab-content">
+      <div id="docs">📄 Loading document previews...</div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      if (tabId === 'docsTab') loadDocs();
+    }
+
+    function setInput(text) {
+      document.getElementById("input").value = text;
+    }
+
+let chatInitialized = false;
+
+function send() {
+  const input = document.getElementById("input");
+  const chat = document.getElementById("chat");
+  const message = input.value.trim();
+  if (!message) return;
+
+  if (!chatInitialized) {
+    chat.innerHTML = "";
+    chatInitialized = true;
+  }
+
+  chat.textContent += `🧑‍💼 You: ${message}\n`;
+  input.value = "";
+
+  fetch("/agent", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message })
+  })
+  .then(res => res.json())
+  .then(data => {
+    chat.textContent += `🤖 AI: ${data.reply}\n\n`;
+    chat.scrollTop = chat.scrollHeight;
+  });
+}
+
+    async function loadDocs() {
+      const docsDiv = document.getElementById("docs");
+      docsDiv.textContent = "📄 Loading...";
+
+      const res = await fetch("/docs");
+      const data = await res.json();
+
+      docsDiv.textContent = "";
+      data.documents.forEach((doc, i) => {
+        docsDiv.textContent += `📁 File: ${doc.file}\n📝 Preview:\n${doc.content}\n\n---\n\n`;
+      });
+    }
+
+    function downloadPlan() {
+      const chat = document.getElementById("chat").textContent;
+      const blob = new Blob([chat], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "migration_plan.txt";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    window.onload = () => {
+    const chat = document.getElementById("chat");
+    chat.innerHTML = `
+      <div class="callout">
+        <strong>🤖 Welcome to Agentic AI!</strong>
+        I’m your cloud migration assistant. I can:
+        <ul>
+          <li>Generate 3-year AWS & Azure migration plans</li>
+          <li>Prioritize workloads based on complexity</li>
+          <li>Answer questions based on your uploaded documents</li>
+        </ul>
+        Type a question or select a suggested prompt to begin.
+      </div>
+    `;
+  };
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+Server_ID,Site,Hostname,Model,CPU_Cores,RAM_GB,Storage_GB,Hypervisor
+VA-SRV001,VA,va-host-01,HP ProLiant DL380,24,64,8000,None
+VA-SRV002,VA,va-host-02,Dell R740,16,256,4000,Hyper-V 2019
+VA-SRV003,VA,va-host-03,Lenovo ThinkSystem SR650,24,256,2000,VMware ESXi 7.0
+VA-SRV004,VA,va-host-04,Dell R740,16,64,4000,VMware ESXi 7.0
+VA-SRV005,VA,va-host-05,Lenovo ThinkSystem SR650,24,64,8000,VMware ESXi 7.0
+VA-SRV006,VA,va-host-06,Lenovo ThinkSystem SR650,16,64,4000,Hyper-V 2019
+VA-SRV007,VA,va-host-07,Lenovo ThinkSystem SR650,16,128,2000,Hyper-V 2019
+VA-SRV008,VA,va-host-08,Lenovo ThinkSystem SR650,24,256,2000,Hyper-V 2019
+VA-SRV009,VA,va-host-09,Dell R740,24,128,8000,None
+VA-SRV010,VA,va-host-10,HP ProLiant DL380,24,256,4000,VMware ESXi 7.0
+VA-SRV011,VA,va-host-11,Lenovo ThinkSystem SR650,24,256,4000,Hyper-V 2019
+VA-SRV012,VA,va-host-12,Lenovo ThinkSystem SR650,24,64,2000,None
+VA-SRV013,VA,va-host-13,Lenovo ThinkSystem SR650,24,256,2000,None
+VA-SRV014,VA,va-host-14,Lenovo ThinkSystem SR650,16,256,8000,Hyper-V 2019
+VA-SRV015,VA,va-host-15,HP ProLiant DL380,16,64,2000,None
+VA-SRV016,VA,va-host-16,Dell R740,16,128,2000,Hyper-V 2019
+VA-SRV017,VA,va-host-17,HP ProLiant DL380,24,256,2000,VMware ESXi 7.0
+VA-SRV018,VA,va-host-18,HP ProLiant DL380,16,256,2000,VMware ESXi 7.0
+VA-SRV019,VA,va-host-19,HP ProLiant DL380,24,128,2000,VMware ESXi 7.0
+VA-SRV020,VA,va-host-20,Dell R740,24,256,4000,VMware ESXi 7.0
+AZ-SRV001,AZ,az-host-01,HP ProLiant DL380,32,128,2000,None
+AZ-SRV002,AZ,az-host-02,HP ProLiant DL380,32,128,4000,None
+AZ-SRV003,AZ,az-host-03,Dell R740,24,128,4000,VMware ESXi 7.0
+AZ-SRV004,AZ,az-host-04,Dell R740,32,128,4000,Hyper-V 2019
+AZ-SRV005,AZ,az-host-05,Lenovo ThinkSystem SR650,16,256,8000,None
+AZ-SRV006,AZ,az-host-06,Dell R740,32,128,8000,VMware ESXi 7.0
+AZ-SRV007,AZ,az-host-07,HP ProLiant DL380,24,256,8000,VMware ESXi 7.0
+AZ-SRV008,AZ,az-host-08,Lenovo ThinkSystem SR650,24,128,2000,None
+AZ-SRV009,AZ,az-host-09,HP ProLiant DL380,16,64,2000,Hyper-V 2019
+AZ-SRV010,AZ,az-host-10,HP ProLiant DL380,24,64,8000,None
+AZ-SRV011,AZ,az-host-11,Lenovo ThinkSystem SR650,16,64,8000,Hyper-V 2019
+AZ-SRV012,AZ,az-host-12,HP ProLiant DL380,16,64,8000,None
+AZ-SRV013,AZ,az-host-13,Dell R740,16,64,4000,None
+AZ-SRV014,AZ,az-host-14,Lenovo ThinkSystem SR650,32,64,2000,Hyper-V 2019
+AZ-SRV015,AZ,az-host-15,Dell R740,24,256,4000,Hyper-V 2019
+CO-SRV001,CO,co-host-01,Dell R740,24,64,8000,VMware ESXi 7.0
+CO-SRV002,CO,co-host-02,Lenovo ThinkSystem SR650,24,64,8000,None
+CO-SRV003,CO,co-host-03,HP ProLiant DL380,24,256,2000,None
+CO-SRV004,CO,co-host-04,Lenovo ThinkSystem SR650,24,128,2000,Hyper-V 2019
+CO-SRV005,CO,co-host-05,HP ProLiant DL380,16,64,4000,None
+CO-SRV006,CO,co-host-06,Lenovo ThinkSystem SR650,24,128,4000,Hyper-V 2019
+CO-SRV007,CO,co-host-07,HP ProLiant DL380,24,128,8000,None
+CO-SRV008,CO,co-host-08,Dell R740,24,128,2000,VMware ESXi 7.0
+CO-SRV009,CO,co-host-09,Dell R740,16,128,8000,Hyper-V 2019
+CO-SRV010,CO,co-host-10,Dell R740,24,256,8000,Hyper-V 2019

@@ -1,0 +1,76 @@
+App_ID,Site,Name,Middleware,DB_Engine,Data_Size_GB,Num_Tiers,VMs_Assigned,Owner_Email,Priority,Compliance,Migration_Type
+VA-APP001,VA,App-VA-001,Tomcat 9,Oracle 19c,500,2,"VA-VM044, VA-VM052",user1@va.company.com,1,PII,Refactor
+VA-APP002,VA,App-VA-002,Nginx 1.18,Oracle 19c,1000,3,"VA-VM005, VA-VM030, VA-VM078",user2@va.company.com,2,PII,Replatform
+VA-APP003,VA,App-VA-003,Nginx 1.18,PostgreSQL 12,500,2,"VA-VM082, VA-VM088",user3@va.company.com,3,HIPAA,Replatform
+VA-APP004,VA,App-VA-004,Apache 2.4,SQLServer 2017,100,2,"VA-VM093, VA-VM066",user4@va.company.com,3,Internal,Replatform
+VA-APP005,VA,App-VA-005,Tomcat 9,Oracle 19c,100,2,"VA-VM063, VA-VM057",user5@va.company.com,3,Internal,Refactor
+VA-APP006,VA,App-VA-006,Apache 2.4,SQLServer 2017,100,1,VA-VM078,user6@va.company.com,3,PCI,Refactor
+VA-APP007,VA,App-VA-007,Nginx 1.18,SQLServer 2017,100,2,"VA-VM014, VA-VM011",user7@va.company.com,1,PII,Refactor
+VA-APP008,VA,App-VA-008,Apache 2.4,PostgreSQL 12,1000,2,"VA-VM077, VA-VM008",user8@va.company.com,3,PII,Rehost
+VA-APP009,VA,App-VA-009,IIS 10,SQLServer 2017,100,1,VA-VM022,user9@va.company.com,3,PII,Replatform
+VA-APP010,VA,App-VA-010,Nginx 1.18,Oracle 19c,2000,2,"VA-VM035, VA-VM082",user10@va.company.com,1,PCI,Rehost
+VA-APP011,VA,App-VA-011,Tomcat 9,PostgreSQL 12,1000,1,VA-VM096,user11@va.company.com,2,Public,Rehost
+VA-APP012,VA,App-VA-012,IIS 10,SQLServer 2017,2000,2,"VA-VM035, VA-VM092",user12@va.company.com,3,HIPAA,Replatform
+VA-APP013,VA,App-VA-013,Apache 2.4,SQLServer 2017,500,1,VA-VM025,user13@va.company.com,2,PCI,Replatform
+VA-APP014,VA,App-VA-014,Nginx 1.18,SQLServer 2017,2000,3,"VA-VM066, VA-VM001, VA-VM023",user14@va.company.com,3,HIPAA,Replatform
+VA-APP015,VA,App-VA-015,Nginx 1.18,SQLServer 2017,1000,3,"VA-VM049, VA-VM027, VA-VM092",user15@va.company.com,3,PII,Rehost
+VA-APP016,VA,App-VA-016,IIS 10,Oracle 19c,500,1,VA-VM034,user16@va.company.com,3,PII,Rehost
+VA-APP017,VA,App-VA-017,Apache 2.4,SQLServer 2017,1000,1,VA-VM099,user17@va.company.com,1,Public,Rehost
+VA-APP018,VA,App-VA-018,Nginx 1.18,Oracle 19c,500,3,"VA-VM054, VA-VM015, VA-VM068",user18@va.company.com,3,HIPAA,Refactor
+VA-APP019,VA,App-VA-019,Nginx 1.18,Oracle 19c,2000,3,"VA-VM048, VA-VM017, VA-VM055",user19@va.company.com,3,Public,Replatform
+VA-APP020,VA,App-VA-020,Tomcat 9,Oracle 19c,1000,2,"VA-VM023, VA-VM044",user20@va.company.com,3,PII,Refactor
+VA-APP021,VA,App-VA-021,Tomcat 9,SQLServer 2017,1000,1,VA-VM031,user21@va.company.com,1,Internal,Rehost
+VA-APP022,VA,App-VA-022,Nginx 1.18,PostgreSQL 12,2000,3,"VA-VM070, VA-VM047, VA-VM055",user22@va.company.com,2,PII,Refactor
+VA-APP023,VA,App-VA-023,Apache 2.4,SQLServer 2017,500,3,"VA-VM040, VA-VM082, VA-VM011",user23@va.company.com,2,Internal,Refactor
+VA-APP024,VA,App-VA-024,Nginx 1.18,SQLServer 2017,500,2,"VA-VM069, VA-VM079",user24@va.company.com,2,Internal,Refactor
+VA-APP025,VA,App-VA-025,IIS 10,Oracle 19c,500,1,VA-VM046,user25@va.company.com,2,HIPAA,Refactor
+VA-APP026,VA,App-VA-026,IIS 10,Oracle 19c,500,2,"VA-VM064, VA-VM066",user26@va.company.com,3,PII,Rehost
+VA-APP027,VA,App-VA-027,IIS 10,PostgreSQL 12,1000,1,VA-VM013,user27@va.company.com,1,HIPAA,Replatform
+VA-APP028,VA,App-VA-028,IIS 10,PostgreSQL 12,1000,2,"VA-VM057, VA-VM010",user28@va.company.com,1,HIPAA,Refactor
+VA-APP029,VA,App-VA-029,IIS 10,PostgreSQL 12,1000,1,VA-VM026,user29@va.company.com,1,Internal,Replatform
+VA-APP030,VA,App-VA-030,IIS 10,PostgreSQL 12,100,1,VA-VM091,user30@va.company.com,2,HIPAA,Replatform
+AZ-APP001,AZ,App-AZ-001,Apache 2.4,Oracle 19c,500,2,"AZ-VM021, AZ-VM058",user1@az.company.com,2,HIPAA,Replatform
+AZ-APP002,AZ,App-AZ-002,Apache 2.4,Oracle 19c,1000,1,AZ-VM054,user2@az.company.com,3,PII,Replatform
+AZ-APP003,AZ,App-AZ-003,Nginx 1.18,Oracle 19c,2000,2,"AZ-VM041, AZ-VM048",user3@az.company.com,3,Public,Refactor
+AZ-APP004,AZ,App-AZ-004,Nginx 1.18,Oracle 19c,100,2,"AZ-VM036, AZ-VM053",user4@az.company.com,3,PCI,Rehost
+AZ-APP005,AZ,App-AZ-005,Apache 2.4,SQLServer 2017,500,2,"AZ-VM005, AZ-VM045",user5@az.company.com,1,Internal,Replatform
+AZ-APP006,AZ,App-AZ-006,Nginx 1.18,Oracle 19c,500,3,"AZ-VM057, AZ-VM038, AZ-VM065",user6@az.company.com,3,PII,Replatform
+AZ-APP007,AZ,App-AZ-007,Tomcat 9,Oracle 19c,1000,2,"AZ-VM042, AZ-VM064",user7@az.company.com,1,PCI,Rehost
+AZ-APP008,AZ,App-AZ-008,Apache 2.4,PostgreSQL 12,100,2,"AZ-VM065, AZ-VM066",user8@az.company.com,3,Internal,Replatform
+AZ-APP009,AZ,App-AZ-009,Nginx 1.18,SQLServer 2017,500,2,"AZ-VM045, AZ-VM040",user9@az.company.com,1,Internal,Replatform
+AZ-APP010,AZ,App-AZ-010,Nginx 1.18,PostgreSQL 12,1000,3,"AZ-VM022, AZ-VM045, AZ-VM046",user10@az.company.com,1,Internal,Refactor
+AZ-APP011,AZ,App-AZ-011,Nginx 1.18,SQLServer 2017,1000,2,"AZ-VM018, AZ-VM026",user11@az.company.com,3,Public,Refactor
+AZ-APP012,AZ,App-AZ-012,Nginx 1.18,Oracle 19c,500,2,"AZ-VM063, AZ-VM054",user12@az.company.com,3,PCI,Replatform
+AZ-APP013,AZ,App-AZ-013,Apache 2.4,SQLServer 2017,500,3,"AZ-VM045, AZ-VM008, AZ-VM069",user13@az.company.com,2,Internal,Refactor
+AZ-APP014,AZ,App-AZ-014,Apache 2.4,Oracle 19c,100,3,"AZ-VM040, AZ-VM059, AZ-VM019",user14@az.company.com,3,PCI,Rehost
+AZ-APP015,AZ,App-AZ-015,Tomcat 9,PostgreSQL 12,1000,1,AZ-VM050,user15@az.company.com,3,HIPAA,Refactor
+AZ-APP016,AZ,App-AZ-016,IIS 10,PostgreSQL 12,500,1,AZ-VM021,user16@az.company.com,3,HIPAA,Refactor
+AZ-APP017,AZ,App-AZ-017,Nginx 1.18,PostgreSQL 12,1000,2,"AZ-VM006, AZ-VM004",user17@az.company.com,3,PII,Refactor
+AZ-APP018,AZ,App-AZ-018,IIS 10,Oracle 19c,100,3,"AZ-VM006, AZ-VM070, AZ-VM059",user18@az.company.com,3,Public,Rehost
+AZ-APP019,AZ,App-AZ-019,Nginx 1.18,SQLServer 2017,1000,3,"AZ-VM064, AZ-VM035, AZ-VM006",user19@az.company.com,2,HIPAA,Rehost
+AZ-APP020,AZ,App-AZ-020,Apache 2.4,SQLServer 2017,2000,2,"AZ-VM055, AZ-VM047",user20@az.company.com,2,PCI,Replatform
+AZ-APP021,AZ,App-AZ-021,Apache 2.4,Oracle 19c,2000,2,"AZ-VM022, AZ-VM030",user21@az.company.com,1,PII,Refactor
+AZ-APP022,AZ,App-AZ-022,Nginx 1.18,PostgreSQL 12,1000,2,"AZ-VM041, AZ-VM010",user22@az.company.com,3,Internal,Replatform
+AZ-APP023,AZ,App-AZ-023,IIS 10,PostgreSQL 12,500,2,"AZ-VM033, AZ-VM039",user23@az.company.com,3,Internal,Refactor
+AZ-APP024,AZ,App-AZ-024,IIS 10,SQLServer 2017,100,2,"AZ-VM054, AZ-VM026",user24@az.company.com,3,PCI,Replatform
+AZ-APP025,AZ,App-AZ-025,Tomcat 9,SQLServer 2017,500,3,"AZ-VM056, AZ-VM024, AZ-VM051",user25@az.company.com,2,Public,Replatform
+CO-APP001,CO,App-CO-001,Apache 2.4,SQLServer 2017,500,3,"CO-VM034, CO-VM002, CO-VM010",user1@co.company.com,2,Public,Rehost
+CO-APP002,CO,App-CO-002,Apache 2.4,SQLServer 2017,2000,2,"CO-VM050, CO-VM047",user2@co.company.com,1,HIPAA,Rehost
+CO-APP003,CO,App-CO-003,Apache 2.4,PostgreSQL 12,100,1,CO-VM028,user3@co.company.com,1,HIPAA,Replatform
+CO-APP004,CO,App-CO-004,Apache 2.4,SQLServer 2017,2000,2,"CO-VM025, CO-VM021",user4@co.company.com,2,Internal,Refactor
+CO-APP005,CO,App-CO-005,IIS 10,Oracle 19c,2000,3,"CO-VM017, CO-VM021, CO-VM018",user5@co.company.com,1,HIPAA,Refactor
+CO-APP006,CO,App-CO-006,Nginx 1.18,PostgreSQL 12,1000,1,CO-VM006,user6@co.company.com,1,PII,Refactor
+CO-APP007,CO,App-CO-007,Nginx 1.18,Oracle 19c,1000,2,"CO-VM049, CO-VM015",user7@co.company.com,3,Public,Replatform
+CO-APP008,CO,App-CO-008,Tomcat 9,SQLServer 2017,2000,2,"CO-VM048, CO-VM013",user8@co.company.com,1,Public,Replatform
+CO-APP009,CO,App-CO-009,Nginx 1.18,PostgreSQL 12,100,2,"CO-VM021, CO-VM034",user9@co.company.com,3,PCI,Refactor
+CO-APP010,CO,App-CO-010,IIS 10,SQLServer 2017,500,3,"CO-VM004, CO-VM033, CO-VM016",user10@co.company.com,1,PCI,Replatform
+CO-APP011,CO,App-CO-011,Tomcat 9,Oracle 19c,1000,2,"CO-VM042, CO-VM023",user11@co.company.com,3,HIPAA,Refactor
+CO-APP012,CO,App-CO-012,Nginx 1.18,SQLServer 2017,2000,1,CO-VM026,user12@co.company.com,3,PII,Replatform
+CO-APP013,CO,App-CO-013,Nginx 1.18,PostgreSQL 12,1000,2,"CO-VM050, CO-VM024",user13@co.company.com,1,Public,Rehost
+CO-APP014,CO,App-CO-014,Tomcat 9,PostgreSQL 12,100,2,"CO-VM006, CO-VM038",user14@co.company.com,1,HIPAA,Refactor
+CO-APP015,CO,App-CO-015,IIS 10,SQLServer 2017,100,1,CO-VM033,user15@co.company.com,3,Internal,Rehost
+CO-APP016,CO,App-CO-016,Tomcat 9,SQLServer 2017,2000,3,"CO-VM011, CO-VM010, CO-VM022",user16@co.company.com,2,Internal,Refactor
+CO-APP017,CO,App-CO-017,Tomcat 9,Oracle 19c,1000,2,"CO-VM005, CO-VM001",user17@co.company.com,2,HIPAA,Rehost
+CO-APP018,CO,App-CO-018,Nginx 1.18,Oracle 19c,500,1,CO-VM020,user18@co.company.com,1,PCI,Rehost
+CO-APP019,CO,App-CO-019,Tomcat 9,SQLServer 2017,1000,3,"CO-VM004, CO-VM021, CO-VM049",user19@co.company.com,2,Public,Refactor
+CO-APP020,CO,App-CO-020,Tomcat 9,Oracle 19c,2000,2,"CO-VM010, CO-VM016",user20@co.company.com,1,HIPAA,Refactor

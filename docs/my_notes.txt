@@ -1,0 +1,5 @@
+This agentic ai is designed to provide a client with the most cost efficient options to migrate to the cloud, both from AWS and Azure cloud.
+
+Key features:
+- AWS Cloud Migration Costs
+- Azure Cloud Migration Costs
