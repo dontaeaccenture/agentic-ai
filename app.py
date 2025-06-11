@@ -2,8 +2,9 @@ import os
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from openai import AzureOpenAI
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain_openai import AzureOpenAIEmbeddings
+from rag_setup import create_faiss_index  # 🔁 FAISS index regeneration
 
 load_dotenv()
 
@@ -18,7 +19,7 @@ DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
 
 app = Flask(__name__)
 
-# ✅ Load embeddings + vector store
+# ✅ Embedding setup
 embedding = AzureOpenAIEmbeddings(
     deployment=os.getenv("AZURE_EMBEDDING_DEPLOYMENT"),
     openai_api_key=os.getenv("AZURE_OPENAI_KEY"),
@@ -26,7 +27,17 @@ embedding = AzureOpenAIEmbeddings(
     openai_api_version=os.getenv("AZURE_OPENAI_API_VERSION")
 )
 
-db = FAISS.load_local("vector_index", embedding, allow_dangerous_deserialization=True)
+# 🧠 Rebuild FAISS vector index if missing
+VECTOR_PATH = "vector_index"
+if not os.path.exists(f"{VECTOR_PATH}/index.faiss"):
+    print("🔄 No vector index found. Rebuilding...")
+    db = create_faiss_index()
+else:
+    db = FAISS.load_local(VECTOR_PATH, embedding, allow_dangerous_deserialization=True)
+
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 @app.route("/agent", methods=["POST"])
 def agent_chat():
@@ -36,7 +47,6 @@ def agent_chat():
     docs = db.similarity_search(user_input, k=3)
     context = "\n\n".join(doc.page_content for doc in docs)
 
-    # 🤖 Cloud architect system prompt
     messages = [
         {
             "role": "system",
@@ -54,7 +64,7 @@ Assume the user wants performance, security, and cost-efficiency.
         }
     ]
 
-    # 🧠 Get response from GPT-4o via Azure
+    # 🧠 Query Azure OpenAI (GPT-4o)
     response = client.chat.completions.create(
         model=DEPLOYMENT,
         messages=messages,
@@ -65,11 +75,6 @@ Assume the user wants performance, security, and cost-efficiency.
     reply = response.choices[0].message.content
     return jsonify({"reply": reply})
 
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-# 📂 "View Docs" tab endpoint
 @app.route("/docs")
 def get_docs():
     docs = db.similarity_search("example", k=20)
