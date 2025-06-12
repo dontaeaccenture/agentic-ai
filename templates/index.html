@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <title>Agentic AI – Corporate Cloud Assistant</title>
   <style>
     :root {
@@ -142,7 +143,56 @@
     @media (max-width: 650px) {
       .container { padding: 0 2vw; }
       header { flex-direction: column; align-items: flex-start; }
-    }
+    }.chat-bubble {
+  background-color: #e6f0fd;
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin: 10px 0;
+  font-size: 0.95rem;
+  font-family: system-ui, sans-serif;
+  line-height: 1.4;
+  max-width: 100%;
+  color: #1d1d1d;
+  overflow-x: auto;
+}
+.chat-bubble p,
+.chat-bubble ul,
+.chat-bubble ol,
+.chat-bubble li,
+.chat-bubble h1,
+.chat-bubble h2,
+.chat-bubble h3 {
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+  line-height: 1.4;
+}
+
+.chat-bubble ul,
+.chat-bubble ol {
+  padding-left: 20px;
+  margin: 0 0 4px 0;
+}
+
+.chat-bubble li > ul,
+.chat-bubble li > ol {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.chat-bubble * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+
+.chat-bubble.ai {
+  background-color: #e0f0ff;
+}
+.chat-bubble.user {
+  background-color: #dbe9f5;
+  text-align: right;
+}
+
   </style>
 </head>
 <body>
@@ -195,65 +245,72 @@
     </div>
   </div>
 
-  <script>
-    function switchTab(tabId, btn) {
-      document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      if (tabId === 'docsTab') loadDocs();
-    }
-    function setInput(text) {
-      document.getElementById("input").value = text;
-    }
-    let chatInitialized = false;
-    function send() {
-      const input = document.getElementById("input");
-      const chat = document.getElementById("chat");
-      const message = input.value.trim();
-      if (!message) return;
+<script>
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (tabId === 'docsTab') loadDocs();
+  }
 
-      if (!chatInitialized) {
-        chat.innerHTML = "";
-        chatInitialized = true;
-      }
+  function setInput(text) {
+    document.getElementById("input").value = text;
+  }
 
-      chat.textContent += `🧑‍💼 You: ${message}\n`;
-      input.value = "";
+  let chatInitialized = false;
 
-      fetch("/agent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      })
-      .then(res => res.json())
-      .then(data => {
-        chat.textContent += `🤖 AI: ${data.reply}\n\n`;
-        chat.scrollTop = chat.scrollHeight;
-      });
+  function send() {
+    const input = document.getElementById("input");
+    const chat = document.getElementById("chat");
+    const message = input.value.trim();
+    if (!message) return;
+
+    if (!chatInitialized) {
+      chat.innerHTML = "";
+      chatInitialized = true;
     }
-    async function loadDocs() {
-      const docsDiv = document.getElementById("docs");
-      docsDiv.textContent = "📄 Loading...";
 
-      const res = await fetch("/docs");
-      const data = await res.json();
+    chat.innerHTML += `<div class="chat-bubble user">🧑‍💼 <strong>You:</strong> ${message}</div>`;
+    input.value = "";
 
-      docsDiv.textContent = "";
-      data.documents.forEach((doc, i) => {
-        docsDiv.textContent += `📁 File: ${doc.file}\n📝 Preview:\n${doc.content}\n\n---\n\n`;
-      });
-    }
-    function downloadPlan() {
-      const chat = document.getElementById("chat").textContent;
-      const blob = new Blob([chat], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "migration_plan.txt";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  </script>
+    fetch("/agent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const formatted = marked.parse(data.reply);
+      chat.innerHTML += `<div class="chat-bubble ai">🤖 <strong>AI:</strong> ${formatted}</div>`;
+      chat.scrollTop = chat.scrollHeight;
+    });
+  }
+
+  async function loadDocs() {
+    const docsDiv = document.getElementById("docs");
+    docsDiv.textContent = "📄 Loading...";
+
+    const res = await fetch("/docs");
+    const data = await res.json();
+
+    docsDiv.textContent = "";
+    data.documents.forEach((doc, i) => {
+      docsDiv.textContent += `📁 File: ${doc.file}\n📝 Preview:\n${doc.content}\n\n---\n\n`;
+    });
+  }
+
+  function downloadPlan() {
+    const chat = document.getElementById("chat").textContent;
+    const blob = new Blob([chat], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "migration_plan.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+</script>
+
 </body>
 </html>
