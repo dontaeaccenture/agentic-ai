@@ -192,6 +192,114 @@
   background-color: #dbe9f5;
   text-align: right;
 }
+.upload-card {
+  background: #f1f7fe;
+  border: 1px solid #c9dcf4;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 400px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+.upload-card h3 {
+  color: #2a4e96;
+  margin-bottom: 16px;
+}
+
+.upload-card input[type="file"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.upload-card button {
+  background: #2a4e96;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.upload-box {
+  background: #f2f8ff;
+  border: 1px solid #d0e6ff;
+  padding: 24px;
+  margin-top: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.upload-box h3 {
+  margin-top: 0;
+  font-size: 1.3rem;
+  color: #1e293b;
+}
+
+.upload-box input[type="file"] {
+  margin: 12px 0;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+}
+
+.upload-box button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.upload-box button:hover {
+  background-color: #1d4ed8;
+}
+
+#upload-msg {
+  margin-top: 10px;
+  color: #059669;
+  font-weight: 500;
+}
+.upload-container {
+  background-color: #111;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 20px;
+  color: #eee;
+  margin-top: 20px;
+}
+
+input[type="file"] {
+  padding: 8px;
+  background: #222;
+  color: #fff;
+  border: none;
+  margin-right: 10px;
+}
+
+button {
+  background: #00ff41;
+  color: black;
+  border: none;
+  padding: 10px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+}
+#uploadStatus {
+  max-height: 180px;
+  overflow-y: auto;
+  background: black;
+  padding: 10px;
+  border: 1px solid #00ff41;
+  border-radius: 8px;
+}
 
   </style>
 </head>
@@ -213,7 +321,9 @@
 
     <div class="tabs">
       <button class="tab-button active" onclick="switchTab('chatTab', this)">💬 Chat</button>
-      <button class="tab-button" onclick="switchTab('docsTab', this)">📂 View Docs</button>
+      <!-- <button class="tab-button" onclick="switchTab('docsTab', this)">📂 View Docs</button> -->
+   <button class="tab-button" onclick="switchTab('uploadTab', this)">📤 Upload Docs</button>
+
     </div>
 
     <div id="chatTab" class="tab-content active">
@@ -244,6 +354,20 @@
       <div id="docs">📄 Loading document previews...</div>
     </div>
   </div>
+<div class="tab-content" id="uploadTab">
+  <div class="upload-box">
+    <h3>📤 Upload Infrastructure Documents</h3>
+ <form id="uploadForm">
+    <input type="file" id="fileInput" name="file" style="color:black" required />
+    <button type="submit">Upload</button>
+  </form>
+
+  <div id="uploadStatus" class="matrix-display" style="display:none; margin-top: 20px; white-space: pre; font-family: 'Courier New'; color: lightsteelblue;"></div>
+
+    <p id="upload-msg"></p>
+  </div>
+</div>
+
 
 <script>
   function switchTab(tabId, btn) {
@@ -310,6 +434,41 @@
     link.click();
     document.body.removeChild(link);
   }
+
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const fileInput = document.getElementById("fileInput");
+  const statusDiv = document.getElementById("uploadStatus");
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  statusDiv.style.display = "block";
+  statusDiv.textContent = "⏳ Uploading to FAISS...\n";
+
+  // Cool Matrix-style dots
+  const interval = setInterval(() => {
+    statusDiv.textContent += Math.random().toString(36).substring(2, 5) + "\n";
+    statusDiv.scrollTop = statusDiv.scrollHeight;
+  }, 100);
+
+  try {
+    const res = await fetch("/upload", {
+      method: "POST",
+      body: formData
+    });
+    const result = await res.json();
+    clearInterval(interval);
+    statusDiv.textContent += "\n✅ " + result.message;
+  } catch (err) {
+    clearInterval(interval);
+    statusDiv.textContent += "\n❌ Upload failed. Please try again.";
+    console.error(err);
+  }
+});
+
 </script>
 
 </body>
