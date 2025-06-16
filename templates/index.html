@@ -1,475 +1,135 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <title>Agentic AI – Corporate Cloud Assistant</title>
-  <style>
-    :root {
-      --bg: #f7fafc;
-      --primary: #1657c2;
-      --secondary: #e8f0fa;
-      --border: #e3e7ee;
-      --text-main: #222b45;
-      --text-accent: #1657c2;
-      --bubble: #e8f1ff;
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
-    }
-    header {
-      background: #fff;
-      border-bottom: 1px solid var(--border);
-      padding: 16px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(22,87,194,0.04);
-    }
-    header img {
-      height: 34px;
-      margin-right: 12px;
-    }
-    .header-title {
-      font-weight: bold;
-      font-size: 1.35rem;
-      color: var(--primary);
-      letter-spacing: 1px;
-    }
-    .container {
-      max-width: 780px;
-      margin: 32px auto;
-      padding: 0 16px;
-    }
-    h1 {
-      font-size: 1.5rem;
-      color: var(--primary);
-      margin-bottom: 24px;
-      font-weight: 600;
-    }
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin: 0 0 24px 0;
-    }
-    .tab-button {
-      padding: 8px 22px;
-      border: 1px solid var(--primary);
-      background: #fff;
-      color: var(--primary);
-      border-radius: 18px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.17s;
-    }
-    .tab-button.active, .tab-button:hover {
-      background: var(--primary);
-      color: #fff;
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- Add to <head> or before closing </body> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    #chat, #docs {
-      background: #fff;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      min-height: 320px;
-      max-height: 400px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      box-shadow: 0 1px 6px rgba(22,87,194,0.05);
-      padding: 18px;
-      color: var(--text-main);
-      margin-bottom: 14px;
-    }
-    textarea {
-      width: 100%;
-      margin-top: 6px;
-      padding: 13px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
-      font-size: 16px;
-      background: var(--secondary);
-      color: var(--text-main);
-      resize: none;
-    }
-    .send {
-      margin-top: 8px;
-      padding: 10px 28px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 7px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      float: right;
-    }
-    .bubble {
-      display: inline-block;
-      margin: 5px 7px 7px 0;
-      padding: 8px 15px;
-      background: var(--bubble);
-      color: var(--text-accent);
-      border-radius: 18px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 500;
-      box-shadow: 0 1px 3px #e3e7ee;
-    }
-    .bubble:hover {
-      background: #ddeafd;
-    }
-    .callout {
-      background: #e8f1ff;
-      color: #003366;
-      padding: 14px 20px;
-      border-left: 5px solid var(--primary);
-      border-radius: 8px;
-      margin-bottom: 16px;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-    .callout strong {
-      font-size: 16px;
-      margin-bottom: 8px;
-      color: var(--primary);
-    }
-    @media (max-width: 650px) {
-      .container { padding: 0 2vw; }
-      header { flex-direction: column; align-items: flex-start; }
-    }.chat-bubble {
-  background-color: #e6f0fd;
-  border-radius: 10px;
-  padding: 14px 20px;
-  margin: 10px 0;
-  font-size: 0.95rem;
-  font-family: system-ui, sans-serif;
-  line-height: 1.4;
-  max-width: 100%;
-  color: #1d1d1d;
-  overflow-x: auto;
-}
-.chat-bubble p,
-.chat-bubble ul,
-.chat-bubble ol,
-.chat-bubble li,
-.chat-bubble h1,
-.chat-bubble h2,
-.chat-bubble h3 {
-  margin-top: 4px !important;
-  margin-bottom: 4px !important;
-  line-height: 1.4;
-}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 
-.chat-bubble ul,
-.chat-bubble ol {
-  padding-left: 20px;
-  margin: 0 0 4px 0;
-}
+<title>Agentic AI – Corporate Cloud Assistant</title>
 
-.chat-bubble li > ul,
-.chat-bubble li > ol {
-  margin-top: 2px;
-  margin-bottom: 2px;
-}
-
-.chat-bubble * {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-
-.chat-bubble.ai {
-  background-color: #e0f0ff;
-}
-.chat-bubble.user {
-  background-color: #dbe9f5;
-  text-align: right;
-}
-.upload-card {
-  background: #f1f7fe;
-  border: 1px solid #c9dcf4;
-  border-radius: 12px;
-  padding: 20px;
-  max-width: 400px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-}
-
-.upload-card h3 {
-  color: #2a4e96;
-  margin-bottom: 16px;
-}
-
-.upload-card input[type="file"] {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.upload-card button {
-  background: #2a4e96;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.upload-box {
-  background: #f2f8ff;
-  border: 1px solid #d0e6ff;
-  padding: 24px;
-  margin-top: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.upload-box h3 {
-  margin-top: 0;
-  font-size: 1.3rem;
-  color: #1e293b;
-}
-
-.upload-box input[type="file"] {
-  margin: 12px 0;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: white;
-}
-
-.upload-box button {
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.upload-box button:hover {
-  background-color: #1d4ed8;
-}
-
-#upload-msg {
-  margin-top: 10px;
-  color: #059669;
-  font-weight: 500;
-}
-.upload-container {
-  background-color: #111;
-  border: 1px solid #444;
-  border-radius: 12px;
-  padding: 20px;
-  color: #eee;
-  margin-top: 20px;
-}
-
-input[type="file"] {
-  padding: 8px;
-  background: #222;
-  color: #fff;
-  border: none;
-  margin-right: 10px;
-}
-
-button {
-  background: #00ff41;
-  color: black;
-  border: none;
-  padding: 10px 16px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 6px;
-}
-#uploadStatus {
-  max-height: 180px;
-  overflow-y: auto;
-  background: black;
-  padding: 10px;
-  border: 1px solid #00ff41;
-  border-radius: 8px;
-}
-
-  </style>
 </head>
 <body>
-  <header>
-    <div style="display: flex; align-items: center;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_logo_icon.svg/1024px-Blue_logo_icon.svg.png" alt="Logo" />
-      <span class="header-title">Agentic AI</span>
-    </div>
-    <nav style="display: flex; gap: 20px;">
-      <a href="#" style="color: var(--text-main); text-decoration: none; font-weight: 500;">Home</a>
-      <a href="#" style="color: var(--text-main); text-decoration: none; font-weight: 500;">Chat</a>
-      <a href="#" style="color: var(--text-main); text-decoration: none; font-weight: 500;">Docs</a>
-    </nav>
-  </header>
+<header class="top-header">
+  <div class="left-controls">
 
-  <div class="container">
-    <h1>Cloud Migration Chat Assistant</h1>
-
-    <div class="tabs">
-      <button class="tab-button active" onclick="switchTab('chatTab', this)">💬 Chat</button>
-      <!-- <button class="tab-button" onclick="switchTab('docsTab', this)">📂 View Docs</button> -->
-   <button class="tab-button" onclick="switchTab('uploadTab', this)">📤 Upload Docs</button>
-
-    </div>
-
-    <div id="chatTab" class="tab-content active">
-      <div id="chat">
-        <div class="callout">
-          <strong>🤖 Welcome to Agentic AI!</strong>
-          I’m your cloud migration assistant. I can:
-          <ul>
-            <li>Generate 3-year AWS & Azure migration plans</li>
-            <li>Prioritize workloads based on complexity</li>
-            <li>Answer questions based on your uploaded documents</li>
-          </ul>
-          Type a question or select a suggested prompt to begin.
-        </div>
-      </div>
-      <div id="suggestions">
-        <span class="bubble" onclick="setInput('Generate a 3-year AWS and Azure migration plan')">💡 Generate migration plan</span>
-        <span class="bubble" onclick="setInput('Which workloads should I migrate first based on complexity?')">🧩 Prioritize workloads</span>
-        <span class="bubble" onclick="setInput('Summarize the key points from the uploaded infrastructure docs')">🧠 Summarize infrastructure</span>
-      </div>
-      <textarea id="input" placeholder="Ask your migration assistant..." rows="4"></textarea>
-      <button class="send" onclick="send()">Send</button>
-      <button class="send" onclick="downloadPlan()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left;">📥 Download Plan</button>
-      <div style="clear: both;"></div>
-    </div>
-
-    <div id="docsTab" class="tab-content">
-      <div id="docs">📄 Loading document previews...</div>
-    </div>
+    <span id="toggle-history" onclick="toggleSidebar()" title="Toggle Chat History">
+      📜
+    </span>
+    <span id="new-chat" onclick="startNewChat()" title="Start New Chat">
+      🆕
+    </span>
   </div>
-<div class="tab-content" id="uploadTab">
-  <div class="upload-box">
-    <h3>📤 Upload Infrastructure Documents</h3>
- <form id="uploadForm">
-    <input type="file" id="fileInput" name="file" style="color:black" required />
-    <button type="submit">Upload</button>
-  </form>
+  
+  <div class="logo-title">
+    <img src="{{ url_for('static', filename='wrangler.jpg') }}" alt="Cloud Wrangler" />
+    <h1>CLOUD WRANGLER</h1>
+  </div>
 
-  <div id="uploadStatus" class="matrix-display" style="display:none; margin-top: 20px; white-space: pre; font-family: 'Courier New'; color: lightsteelblue;"></div>
+  <nav class="top-nav">
+    <a href="#">Home</a>
+    <a href="#">Chat</a>
+    <a href="#">Docs</a>
+  </nav>
+</header>
+<div class="container">
+<h1 id="title-style">Cloud Migration Chat Assistant</h1>
+<div class="tabs">
+<button class="tab-button active" onclick="switchTab('chatTab', this)">💬 Chat</button>
+<!-- <button class="tab-button" onclick="switchTab('docsTab', this)">📂 View Docs</button> -->
+<button class="tab-button" onclick="switchTab('uploadTab', this)">📤 Upload Docs</button>
+<button class="tab-button" onclick="switchTab('metricsTab', this)">📊 Metrics</button>
 
-    <p id="upload-msg"></p>
+</div> 
+<div id="metrics-dashboard" class="metrics-box">
+  <h3>📊 Migration Activity Metrics</h3>
+  <div class="metric-row">
+    <div><strong>📝 Plans Generated:</strong> <span id="plansCount">0</span></div>
+    <div><strong>📂 Documents Uploaded:</strong> <span id="docsCount">0</span></div>
+    <div><strong>💬 Messages:</strong> <span id="messagesCount">0</span></div>
   </div>
 </div>
 
+<div id="chatTab" class="tab-content active collapsed">
+  <!-- Sidebar -->
+<div id="sidebar">
+  <h3>🕘 Chat History</h3>
+  <ul id="chat-history" style="list-style: none; padding-left: 0;"></ul>
+</div>
+  <div style="flex: 1;">
+<!-- Chat Window -->
+<div id="chat">
+<div class="callout">
+<strong>🤖 Welcome to Agentic AI!</strong>
+<p>
+        I’m your cloud migration assistant. I can:
+</p>
+        <ul>
+<li>Generate 3-year AWS &amp; Azure migration plans</li>
+<li>Prioritize workloads based on complexity</li>
+<li>Answer questions based on your uploaded documents</li>
+</ul>
+        Type a question or select a suggested prompt to begin.
+      </div>
+</div>
+<!-- Planner agent -->
+<div id="agentic-response" style="display: none; margin-top: 20px;">
+<div class="planner-card">
+<div class="planner-header">🧠 Planner Agent Response</div>
+<div class="planner-body" id="planner-content">
+<em>Loading plan...</em>
+</div>
+</div>
+</div>
+<div id="suggestions">
+<span class="bubble" onclick="setInput('Generate a 3-year AWS and Azure migration plan')">💡 Generate migration plan</span>
+<span class="bubble" onclick="setInput('Which workloads should I migrate first based on complexity?')">🧩 Prioritize workloads</span>
+<span class="bubble" onclick="setInput('Summarize the key points from the uploaded infrastructure docs')">🧠 Summarize infrastructure</span>
+</div>
+<div class="ux-hint">💬 Ask anything – I’ll route your message to the right assistant.</div>
+<textarea id="input" placeholder="Ask your migration assistant." rows="4"></textarea>
+<button class="send" onclick="send()" title="Use for any task like 'Generate a migration plan', 'Summarize documents', etc.">Send</button>
+<button class="send" onclick="downloadPlan()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left;">📥 Download Plan</button>
+<button class="send" onclick="downloadPDF()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left; margin-right: 10px;">
+  📝 Export as PDF
+</button>
 
-<script>
-  function switchTab(tabId, btn) {
-    document.querySelectorAll('.tab-content').forEach(div => div.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    if (tabId === 'docsTab') loadDocs();
-  }
+<div style="clear: both;"></div>
+</div>
+</div>
+<div class="tab-content" id="docsTab">
+<div id="docs">📄 Loading document previews...</div>
+</div>
+<div class="tab-content" id="uploadTab">
+<div class="upload-box">
+<h3>📤 Upload Infrastructure Documents</h3>
+<form id="uploadForm">
+<input id="fileInput" name="file" required="" style="color:black" type="file"/>
+<button type="submit">Upload</button>
+</form>
+<div class="matrix-display" id="uploadStatus" style="display:none; margin-top: 20px; white-space: pre; font-family: 'Courier New'; color: lightsteelblue;"></div>
+<p id="upload-msg"></p>
+</div>
+</div>
+<div class="tab-content" id="metricsTab">
+  <div class="upload-box">
+    <h3>📈 Migration Metrics</h3>
+    <ul id="metricsList" style="font-size: 1.1rem; line-height: 1.8;">
+      <li>📄 Documents Uploaded: <strong id="docsUploaded">0</strong></li>
+      <li>📦 Migration Plans Generated: <strong id="plansGenerated">0</strong></li>
+      <li>💬 User Messages: <strong id="userMessages">0</strong></li>
+    </ul>
+    <button onclick="refreshMetrics()">🔄 Refresh Metrics</button>
+  </div>
+</div>
 
-  function setInput(text) {
-    document.getElementById("input").value = text;
-  }
-
-  let chatInitialized = false;
-
-  function send() {
-    const input = document.getElementById("input");
-    const chat = document.getElementById("chat");
-    const message = input.value.trim();
-    if (!message) return;
-
-    if (!chatInitialized) {
-      chat.innerHTML = "";
-      chatInitialized = true;
-    }
-
-    chat.innerHTML += `<div class="chat-bubble user">🧑‍💼 <strong>You:</strong> ${message}</div>`;
-    input.value = "";
-
-    fetch("/agent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    })
-    .then(res => res.json())
-    .then(data => {
-      const formatted = marked.parse(data.reply);
-      chat.innerHTML += `<div class="chat-bubble ai">🤖 <strong>AI:</strong> ${formatted}</div>`;
-      chat.scrollTop = chat.scrollHeight;
-    });
-  }
-
-  async function loadDocs() {
-    const docsDiv = document.getElementById("docs");
-    docsDiv.textContent = "📄 Loading...";
-
-    const res = await fetch("/docs");
-    const data = await res.json();
-
-    docsDiv.textContent = "";
-    data.documents.forEach((doc, i) => {
-      docsDiv.textContent += `📁 File: ${doc.file}\n📝 Preview:\n${doc.content}\n\n---\n\n`;
-    });
-  }
-
-  function downloadPlan() {
-    const chat = document.getElementById("chat").textContent;
-    const blob = new Blob([chat], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "migration_plan.txt";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-document.getElementById("uploadForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
-  const fileInput = document.getElementById("fileInput");
-  const statusDiv = document.getElementById("uploadStatus");
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  statusDiv.style.display = "block";
-  statusDiv.textContent = "⏳ Uploading to FAISS...\n";
-
-  // Cool Matrix-style dots
-  const interval = setInterval(() => {
-    statusDiv.textContent += Math.random().toString(36).substring(2, 5) + "\n";
-    statusDiv.scrollTop = statusDiv.scrollHeight;
-  }, 100);
-
-  try {
-    const res = await fetch("/upload", {
-      method: "POST",
-      body: formData
-    });
-    const result = await res.json();
-    clearInterval(interval);
-    statusDiv.textContent += "\n✅ " + result.message;
-  } catch (err) {
-    clearInterval(interval);
-    statusDiv.textContent += "\n❌ Upload failed. Please try again.";
-    console.error(err);
-  }
-});
-
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='main.js') }}"></script>
 
 </body>
 </html>

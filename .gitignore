@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 *.pkl
 vector_index/
+venv310/
