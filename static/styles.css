@@ -12,12 +12,14 @@
     body {
       margin: 0;
       font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
+  background-color: #FDF9F4; /* Cream background */
+  color: #1B1C1E;
     }
 header {
-  background: #fff;
-  border-bottom: 2px solid var(--border);
+  background-color: #FFFFFF;
+    color: #1B1C1E;
+      font-family: 'Segoe UI', sans-serif;
+  border-bottom: 2px solid #EAEAEA;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -268,14 +270,24 @@ header {
   margin-top: 0;
   margin-bottom: 0;
 }
-
+button, .send {
+  background-color: #1B1C1E;
+  color: #FFFFFF;
+  border-radius: 8px;
+  font-weight: bold;
+  padding: 10px 16px;
+  border: none;
+  cursor: pointer;
+}
 
 .chat-bubble.ai {
-  background: #e9f5ff;
+  background-color: #EDF6FA;
+  color: #1B1C1E;
 }
 .chat-bubble.user {
-  background-color: #dbe9f5;
-  text-align: right;
+ background-color: #D4EAF1;
+  color: #1B1C1E;
+    text-align: right;
 }
 .upload-card {
   background: #f1f7fe;
@@ -307,12 +319,12 @@ header {
   cursor: pointer;
 }
 .upload-box {
-  background: #f2f8ff;
-  border: 1px solid #d0e6ff;
+  background-color: #FFFFFF;
+  border: 1px solid #E3E3E3;
   padding: 24px;
   margin-top: 30px;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -386,11 +398,11 @@ button {
   border-radius: 8px;
 }
 .planner-card {
-  background: #e6f4ff;
-  border: 1px solid #b3d4fc;
+  background-color: #FFFFFF;
+  border: 1px solid #E3E3E3;
   border-left: 5px solid #1e88e5;
   border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
   padding: 20px;
   margin-top: 20px;
 }
@@ -465,20 +477,80 @@ button {
 }
 
 .metrics-box {
-  background: #f9fbff;
-  border: 1px solid #cdddf5;
-  border-left: 5px solid #4b91f1;
+  background-color: #FFFFFF;
+  border: 1px solid #E3E3E3;
   padding: 16px 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   margin-bottom: 20px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+  width: 100%;
 }
 
 .metric-row {
   display: flex;
-  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.metric-button {
+  flex: 1;
+  padding: 14px 18px;
+  background-color: #f1f5ff;
+  border: 1px solid #c3d4ec;
+  border-radius: 10px;
   font-size: 1rem;
-  gap: 12px;
-  color: #1a1a1a;
+  font-weight: 300;
+  color: #1e2b4f;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: left;
+}
+
+.metric-button:hover {
+  background-color: #e3ecff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+button:hover {
+  background-color: #4A90A4;
+}
+.upload-card {
+  background: #f1f7fe;
+  border: 1px solid #c9dcf4;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto 24px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 250px;
+}
+.download-btn {
+  margin-top: 20px;
+  align-self: flex-start;
+}
+
+
+.upload-card h4 {
+  margin-top: 0;
+  color: #0a3c7d;
+}
+
+#chat-history {
+  max-height: 400px;          /* You can adjust this height */
+  overflow-y: auto;           /* Enables vertical scrolling */
+  padding-right: 6px;         /* Optional: space for scrollbar */
+  scrollbar-width: thin;      /* For Firefox */
+}
+
+#chat-history::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chat-history::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
 }
 

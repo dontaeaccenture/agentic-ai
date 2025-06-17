@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uploaded Documents</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <h2>📂 Uploaded Documents</h2>
+    <a href="/" style="float: right; margin-top: -30px;">← Back to Dashboard</a>
+  </header>
+
+  <div class="container">
+    {% for doc in documents %}
+<div class="upload-card">
+  <h4>📄 {{ doc.file }}</h4>
+  <pre style="white-space: pre-wrap;">{{ doc.content }}</pre>
+<a href="{{ url_for('download_document', filename=doc.file) }}" download>
+  <button class="send download-btn">⬇️ Download</button>
+</a>
+
+
+  
+</div>
+
+    {% endfor %}
+  </div>
+</body>
+</html>

@@ -1,5 +1,7 @@
 import os
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file, send_from_directory
+
+from io import BytesIO
 from dotenv import load_dotenv
 from openai import AzureOpenAI
 from werkzeug.utils import secure_filename
@@ -8,6 +10,7 @@ from langchain_openai import AzureOpenAIEmbeddings
 from rag_setup import create_faiss_index # 👈 Make sure load_and_split_file exists
 from planner_agent import plan_and_execute
 from models import SessionLocal, ChatHistory, MigrationStats  # Already imported ChatHistory
+from sqlalchemy import or_
 
 load_dotenv()
 
@@ -41,10 +44,15 @@ if not os.path.exists(f"{VECTOR_PATH}/index.faiss"):
 else:
     db = FAISS.load_local(VECTOR_PATH, embedding, allow_dangerous_deserialization=True)
 
-def update_migration_stat(field_name, increment=1):
-    db_session = SessionLocal()
+def update_migration_stat(field_name, increment=1, db_session=None):
+    internal_session = False
+
+    if db_session is None:
+        db_session = SessionLocal()
+        internal_session = True
+
     stats = db_session.query(MigrationStats).first()
-    
+
     if not stats:
         stats = MigrationStats()
         setattr(stats, field_name, increment)
@@ -53,8 +61,10 @@ def update_migration_stat(field_name, increment=1):
         current = getattr(stats, field_name, 0) or 0
         setattr(stats, field_name, current + increment)
 
-    db_session.commit()
-    db_session.close()
+    if internal_session:
+        db_session.commit()
+        db_session.close()
+
 
 @app.route("/")
 def home():
@@ -83,19 +93,18 @@ Assume the user wants performance, security, and cost-efficiency.
         ]
         update_migration_stat("plans_generated")
 
-
     else:
         messages = [
-        {
-            "role": "system",
-            "content": f"""
-You are a senior cloud architect tasked with creating a structured, realistic 3-year migration plan to AWS and Azure.
-Use only the data below as your source of truth:
+            {
+                "role": "system",
+                "content": f"""
+You are a helpful assistant for cloud migration teams.
+Use the following as source context only:
 \n\n{context}
 """
-        },
-        { "role": "user", "content": user_input }
-    ]
+            },
+            { "role": "user", "content": user_input }
+        ]
 
     response = client.chat.completions.create(
         model=DEPLOYMENT,
@@ -106,11 +115,8 @@ Use only the data below as your source of truth:
 
     reply = response.choices[0].message.content
 
-    # ✅ Make sure DB code is INSIDE this function
-    # ✅ Save chat + increment metrics
     try:
         db_session = SessionLocal()
-        # Save chat
         chat_entry = ChatHistory(
             session_id=request.remote_addr,
             user_input=user_input,
@@ -118,12 +124,23 @@ Use only the data below as your source of truth:
         )
         db_session.add(chat_entry)
 
-        update_migration_stat("user_messages")
+        update_migration_stat("user_messages", db_session=db_session)  # reuses active session
+
+        db_session.commit()
+        plan_id = chat_entry.id
 
     except Exception as e:
         print(f"⚠️ Failed to save chat or update stats: {e}")
+        plan_id = None
 
-    return jsonify({"reply": reply})
+    finally:
+        db_session.close()
+
+    return jsonify({
+    "reply": reply,
+    "plan_id": plan_id if is_migration_request else None
+})
+
 
 
 @app.route("/agent/vanilla", methods=["POST"])
@@ -245,28 +262,90 @@ def upload_file():
         "message": "Unsupported file type"
     }), 400
 
+@app.route("/uploads")
+def view_uploaded_documents():
+    from langchain_community.vectorstores import FAISS
+    docs = db.similarity_search("infrastructure", k=50)
+    doc_previews = [
+        {
+            "file": doc.metadata.get("source", "Unknown"),
+            "content": doc.page_content[:500]
+        }
+        for doc in docs
+    ]
+    return render_template("uploads.html", documents=doc_previews)
+
+@app.route("/download/<path:filename>")
+def download_document(filename):
+    return send_from_directory("docs", filename, as_attachment=True)
+
 @app.route("/metrics", methods=["GET"])
 def get_metrics():
     try:
         db_session = SessionLocal()
         stats = db_session.query(MigrationStats).first()
+
+        # Dynamically count current valid files in the docs folder
+        try:
+            files_in_folder = [
+                f for f in os.listdir("docs")
+                if os.path.isfile(os.path.join("docs", f))
+                and f.rsplit(".", 1)[-1].lower() in ALLOWED_EXTENSIONS
+            ]
+            docs_uploaded = len(files_in_folder)
+        except FileNotFoundError:
+            docs_uploaded = 0
+
         db_session.close()
 
-        if not stats:
-            return jsonify({
-                "plans_generated": 0,
-                "documents_uploaded": 0,
-                "user_messages": 0
-            })
-
         return jsonify({
-            "plans_generated": stats.plans_generated,
-            "documents_uploaded": stats.documents_uploaded,
-            "user_messages": stats.user_messages
+            "plans_generated": stats.plans_generated if stats else 0,
+            "documents_uploaded": docs_uploaded,
+            "user_messages": stats.user_messages if stats else 0
         })
     except Exception as e:
         print(f"❌ Error fetching metrics: {e}")
         return jsonify({"error": "Could not retrieve metrics"}), 500
+
+
+@app.route("/plans/<int:plan_id>", methods=["GET"])
+def get_plan(plan_id):
+    db_session = SessionLocal()
+    plan = db_session.query(ChatHistory).filter(ChatHistory.id == plan_id).first()
+    db_session.close()
+
+    if not plan:
+        app.logger.warning(f"Plan ID {plan_id} not found.")
+        return jsonify({"error": "Plan not found"}), 404
+
+    filename = f"migration_plan_{plan_id}.txt"
+    content = f"User Message:\n{plan.user_input}\n\nAI Response:\n{plan.ai_response}"
+
+    # Serve the file as a downloadable response
+    return send_file(
+        BytesIO(content.encode()),
+        as_attachment=True,
+        download_name=filename,
+        mimetype="text/plain"
+    )
+
+@app.route("/plans")
+def list_plans():
+    keywords = ["migration", "plan"]
+
+    db_session = SessionLocal()
+
+    # Build a filter that checks if AI response contains any keyword (case-insensitive)
+    filters = [ChatHistory.ai_response.ilike(f"%{kw}%") for kw in keywords]
+
+    plans = db_session.query(ChatHistory)\
+        .filter(or_(*filters))\
+        .order_by(ChatHistory.timestamp.desc())\
+        .all()
+
+    db_session.close()
+
+    return render_template("plans.html", plans=plans)
 
 if __name__ == "__main__":
     app.run(debug=True)

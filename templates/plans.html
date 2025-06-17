@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Saved Migration Plans</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      padding: 40px;
+      color: #1f2937;
+    }.plan-card {
+  background-color: #e9f2ff; /* light blue background */
+  border: 2px solid #a7c6ff; /* soft blue border */
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px auto;
+  max-width: 900px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.plan-card h4 {
+  margin-top: 0;
+}
+
+.plan-card .timestamp {
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.plan-card .user-message,
+.plan-card .ai-response {
+  margin-bottom: 12px;
+  color: #2d2d2d;
+}
+
+.download-button {
+  display: inline-block;
+  background-color: #1657c2;
+  color: white;
+  font-weight: bold;
+  padding: 10px 16px;
+  text-decoration: none;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.download-button:hover {
+  background-color: #0e3e94;
+}
+.header-row {
+  background-color: #fff;
+  padding: 1rem 2rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  border-left: 6px solid #f4c542; /* Yellow folder accent */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header-row h2 {
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  color: #222;
+  margin: 0;
+}
+
+.folder-icon {
+  font-size: 1.8rem;
+  margin-right: 10px;
+}
+
+
+  </style>
+</head>
+<body style="background-color: #FDF9F4;">
+      <header>
+<!-- NEW -->
+<div class="header-row">
+  <h2><span class="folder-icon">📁</span> Saved Migration Plans</h2>
+    <a href="/" style="float: right; margin-top: -30px;">← Back to Dashboard</a>
+  
+  </div>  
+</header>
+  <div class="container">
+
+  {% for plan in plans %}
+<div class="plan-card">
+  <div class="timestamp">🕒 <strong>Timestamp:</strong> {{ plan.timestamp }}</div>
+  <div class="user-message">📄 <strong>User Message:</strong> {{ plan.user_input[:60] }}...</div>
+  <div class="ai-response">🤖 <strong>AI Response:</strong> {{ plan.ai_response[:100] }}...</div>
+  <a class="download-button" target="_blank" href="/plans/{{ plan.id }}">⬇️ Download Full Plan</a>
+</div>
+
+  {% else %}
+    <p>No plans saved yet.</p>
+  {% endfor %}
+  </div>
+</body>
+</html>

@@ -24,6 +24,9 @@
     <span id="new-chat" onclick="startNewChat()" title="Start New Chat">
       🆕
     </span>
+        <span id="toggleMetrics" title="Toggle Metrics" onclick="toggleMetrics()">
+      📊
+        </span>
   </div>
   
   <div class="logo-title">
@@ -32,9 +35,8 @@
   </div>
 
   <nav class="top-nav">
-    <a href="#">Home</a>
-    <a href="#">Chat</a>
-    <a href="#">Docs</a>
+    <a href="/">Home</a>
+    <a href="/uploads">Docs</a>
   </nav>
 </header>
 <div class="container">
@@ -43,18 +45,20 @@
 <button class="tab-button active" onclick="switchTab('chatTab', this)">💬 Chat</button>
 <!-- <button class="tab-button" onclick="switchTab('docsTab', this)">📂 View Docs</button> -->
 <button class="tab-button" onclick="switchTab('uploadTab', this)">📤 Upload Docs</button>
-<button class="tab-button" onclick="switchTab('metricsTab', this)">📊 Metrics</button>
+<!-- <button class="tab-button" onclick="switchTab('metricsTab', this)">📊 Metrics</button> -->
 
 </div> 
-<div id="metrics-dashboard" class="metrics-box">
+<div id="metrics-dashboard" class="metrics-box"> 
   <h3>📊 Migration Activity Metrics</h3>
   <div class="metric-row">
-    <div><strong>📝 Plans Generated:</strong> <span id="plansCount">0</span></div>
-    <div><strong>📂 Documents Uploaded:</strong> <span id="docsCount">0</span></div>
-    <div><strong>💬 Messages:</strong> <span id="messagesCount">0</span></div>
+    <button class="metric-button" onclick="location.href='/plans'">
+      📝 <strong>Plans Generated:</strong> <span id="plansCount">0</span>
+    </button>
+    <button class="metric-button" onclick="location.href='/uploads'">
+      📂 <strong>Documents Uploaded:</strong> <span id="docsCount">0</span>
+    </button>
   </div>
 </div>
-
 <div id="chatTab" class="tab-content active collapsed">
   <!-- Sidebar -->
 <div id="sidebar">
@@ -94,8 +98,8 @@
 <div class="ux-hint">💬 Ask anything – I’ll route your message to the right assistant.</div>
 <textarea id="input" placeholder="Ask your migration assistant." rows="4"></textarea>
 <button class="send" onclick="send()" title="Use for any task like 'Generate a migration plan', 'Summarize documents', etc.">Send</button>
-<button class="send" onclick="downloadPlan()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left;">📥 Download Plan</button>
-<button class="send" onclick="downloadPDF()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left; margin-right: 10px;">
+<button class="send" onclick="downloadPlan()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left;">📥 Download Chat</button>
+<button class="send" onclick="downloadPDF()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left; margin-right: 10px; visibility: hidden;">
   📝 Export as PDF
 </button>
 

@@ -14,32 +14,56 @@
 
   let chatInitialized = false;
 
-  function send() {
-    const input = document.getElementById("input");
-    const chat = document.getElementById("chat");
-    const message = input.value.trim();
-    if (!message) return;
+ function send() {
+  const input = document.getElementById("input");
+  const chat = document.getElementById("chat");
+  const message = input.value.trim();
+  if (!message) return;
 
-    if (!chatInitialized) {
-      chat.innerHTML = "";
-      chatInitialized = true;
-    }
-
-    chat.innerHTML += `<div class="chat-bubble user">🧑‍💼 <strong>You:</strong> ${message}</div>`;
-    input.value = "";
-
-    fetch("/agent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    })
-    .then(res => res.json())
-    .then(data => {
-      const formatted = marked.parse(data.reply);
-      chat.innerHTML += `<div class="chat-bubble ai">🤖 <strong>AI:</strong> ${formatted}</div>`;
-      chat.scrollTop = chat.scrollHeight;
-    });
+  if (!chatInitialized) {
+    chat.innerHTML = "";
+    chatInitialized = true;
   }
+
+  chat.innerHTML += `<div class="chat-bubble user">🧑‍💼 <strong>You:</strong> ${message}</div>`;
+  input.value = "";
+
+  fetch("/agent", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message })
+  })
+  .then(res => res.json())
+  .then(data => { 
+  const formatted = marked.parse(data.reply);
+  const planId = data.plan_id;
+
+  const aiBubble = document.createElement("div");
+  aiBubble.className = "chat-bubble ai";
+  aiBubble.innerHTML = `🤖 <strong>AI:</strong> ${formatted}`;
+
+  if (planId) {
+    const downloadBtn = document.createElement("button");
+    downloadBtn.className = "send";
+    downloadBtn.innerText = "📥 Download This Plan";
+    downloadBtn.style.background = "#eee";
+    downloadBtn.style.color = "#1657c2";
+    downloadBtn.style.border = "1px solid #1657c2";
+    downloadBtn.style.marginTop = "10px";
+
+    downloadBtn.onclick = () => {
+      window.open(`/plans/${planId}`, "_blank");
+    };
+
+    aiBubble.appendChild(downloadBtn);
+  }
+
+  chat.appendChild(aiBubble);
+  chat.scrollTop = chat.scrollHeight;
+});
+
+}
+
 
   async function loadDocs() {
     const docsDiv = document.getElementById("docs");
@@ -165,12 +189,20 @@ async function loadHistory() {
     const toggleBtn = document.querySelector(".sidebar-toggle");
     if (sidebar.style.display === "none") {
       sidebar.style.display = "block";
-      toggleBtn.innerHTML = "📂 Hide History";
+      //toggleBtn.innerHTML = "📂 Hide History";
     } else {
       sidebar.style.display = "none";
-      toggleBtn.innerHTML = "📂 Show History";
+      //toggleBtn.innerHTML = "📂 Show History";
     }
   }
+function toggleMetrics() {
+  const metrics = document.getElementById("metrics-dashboard");
+  if (metrics.style.display === "none") {
+    metrics.style.display = "block";
+  } else {
+    metrics.style.display = "none";
+  }
+}
 
   function startNewChat() {
     const chat = document.getElementById("chat");
@@ -215,7 +247,7 @@ async function loadMetrics() {
     const data = await res.json();
     document.getElementById("plansCount").textContent = data.plans_generated;
     document.getElementById("docsCount").textContent = data.documents_uploaded;
-    document.getElementById("messagesCount").textContent = data.user_messages;
+    // document.getElementById("messagesCount").textContent = data.user_messages;
  
   } catch (err) {
     console.error("Failed to load metrics", err);
@@ -227,11 +259,11 @@ async function refreshMetrics() {
     const data = await res.json();
     document.getElementById("plansCount").textContent = data.plans_generated;
     document.getElementById("docsCount").textContent = data.documents_uploaded;
-    document.getElementById("messagesCount").textContent = data.user_messages;
+    // document.getElementById("messagesCount").textContent = data.user_messages;
   
     document.getElementById("docsUploaded").textContent = data.documents_uploaded;
     document.getElementById("plansGenerated").textContent = data.plans_generated;
-    document.getElementById("userMessages").textContent = data.user_messages;
+    // document.getElementById("userMessages").textContent = data.user_messages;
   } catch (err) {
     console.error("Failed to fetch metrics:", err);
   }
@@ -241,10 +273,11 @@ async function refreshMetrics() {
   // 👇 Hide sidebar on load
   window.onload = () => {
     loadHistory();     
-       refreshMetrics();  // 👈 ensure metrics load automatically
+   refreshMetrics();  // 👈 ensure metrics load automatically
+   loadMetrics();  // 👈 Call this when page loads
 
     toggleSidebar(); // hides it by default
-      loadMetrics();  // 👈 Call this when page loads
+
 
   };
 
