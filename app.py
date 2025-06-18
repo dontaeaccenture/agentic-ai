@@ -73,7 +73,7 @@ def home():
 @app.route("/agent", methods=["POST"])
 def agent_chat():
     user_input = request.json.get("message", "")
-    docs = db.similarity_search(user_input, k=3)
+    docs = db.similarity_search(user_input, k=6)
     context = "\n\n".join(doc.page_content for doc in docs)
 
     keywords = ["migration", "cloud", "aws", "azure", "infrastructure", "plan", "roadmap", "rehost", "replatform"]
@@ -82,11 +82,23 @@ def agent_chat():
     if is_migration_request:
         system_prompt = f"""
 You are a senior cloud architect tasked with creating a structured, realistic 3-year migration plan to AWS and Azure.
+
 Use only the data below as your source of truth:
 \n\n{context}\n\n
-Structure your answer by year (Year 1, Year 2, Year 3), and include phases like: discovery, planning, POC, lift-and-shift, optimization, and cloud-native rebuild.
+
+Structure your answer by year (Year 1, Year 2, Year 3), and include phases like: discovery, planning, proof of concept (POC), lift-and-shift, optimization, and cloud-native rebuild.
+
 Assume the user wants performance, security, and cost-efficiency.
+
+When recommending AWS or Azure cloud services, include relevant documentation or pricing tools using **Markdown links**. For example:
+- [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices)
+- [Azure Pricing Calculator](https://azure.microsoft.com/en-us/pricing/calculator/)
+- [AWS Pricing Calculator](https://calculator.aws.amazon.com/)
+- [AWS Pricing API Docs](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/price-changes.html)
+
+Your response should be professional, actionable, and formatted clearly using Markdown (headings, bullet points, etc.).
 """
+
         messages = [
             { "role": "system", "content": system_prompt },
             { "role": "user", "content": user_input }
@@ -110,7 +122,7 @@ Use the following as source context only:
         model=DEPLOYMENT,
         messages=messages,
         temperature=0.7,
-        max_tokens=1000
+        max_tokens=3000
     )
 
     reply = response.choices[0].message.content
