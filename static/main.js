@@ -14,7 +14,7 @@
 
   let chatInitialized = false;
 
- function send() {
+function send() {
   const input = document.getElementById("input");
   const chat = document.getElementById("chat");
   const message = input.value.trim();
@@ -35,33 +35,46 @@
   })
   .then(res => res.json())
   .then(data => { 
-  const formatted = marked.parse(data.reply);
-  const planId = data.plan_id;
+    const formatted = marked.parse(data.reply);
+    const planId = data.plan_id;
 
-  const aiBubble = document.createElement("div");
-  aiBubble.className = "chat-bubble ai";
-  aiBubble.innerHTML = `🤖 <strong>AI:</strong> ${formatted}`;
+    const aiBubble = document.createElement("div");
+    aiBubble.className = "chat-bubble ai";
+    aiBubble.innerHTML = `🤖 <strong>AI:</strong> ${formatted}`;
 
-  if (planId) {
-    const downloadBtn = document.createElement("button");
-    downloadBtn.className = "send";
-    downloadBtn.innerText = "📥 Download This Plan";
-    downloadBtn.style.background = "#eee";
-    downloadBtn.style.color = "#1657c2";
-    downloadBtn.style.border = "1px solid #1657c2";
-    downloadBtn.style.marginTop = "10px";
+    // ✅ Add cloud cost estimates if available
+    if (data.aws_price || data.azure_price) {
+      const costDiv = document.createElement("div");
+      costDiv.className = "cost-estimate";
+      costDiv.innerHTML = `
+        <h4>💰 Cloud Cost Estimates</h4>
+        <ul>
+          ${data.aws_price ? `<li><strong>AWS:</strong> ${data.aws_price}</li>` : ""}
+          ${data.azure_price ? `<li><strong>Azure:</strong> ${data.azure_price}</li>` : ""}
+        </ul>
+      `;
+      aiBubble.appendChild(costDiv);
+    }
 
-    downloadBtn.onclick = () => {
-      window.open(`/plans/${planId}`, "_blank");
-    };
+    if (planId) {
+      const downloadBtn = document.createElement("button");
+      downloadBtn.className = "send";
+      downloadBtn.innerText = "📥 Download This Plan";
+      downloadBtn.style.background = "#eee";
+      downloadBtn.style.color = "#1657c2";
+      downloadBtn.style.border = "1px solid #1657c2";
+      downloadBtn.style.marginTop = "10px";
 
-    aiBubble.appendChild(downloadBtn);
-  }
+      downloadBtn.onclick = () => {
+        window.open(`/plans/${planId}`, "_blank");
+      };
 
-  chat.appendChild(aiBubble);
-  chat.scrollTop = chat.scrollHeight;
-});
+      aiBubble.appendChild(downloadBtn);
+    }
 
+    chat.appendChild(aiBubble);
+    chat.scrollTop = chat.scrollHeight;
+  });
 }
 
 
@@ -89,23 +102,35 @@
     document.body.removeChild(link);
   }
 
-document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+const form = document.getElementById("uploadForm");
+const filesInput = document.getElementById("fileUploadFiles");
+const folderInput = document.getElementById("fileUploadFolder");
+const fileList = document.getElementById("fileList");
+const uploadStatus = document.getElementById("uploadStatus");
+
+let allSelectedFiles = [];
+
+filesInput.addEventListener("change", (e) => handleFileSelection(e.target.files));
+folderInput.addEventListener("change", (e) => handleFileSelection(e.target.files));
+
+function handleFileSelection(fileListInput) {
+  allSelectedFiles = [...fileListInput]; // store all files
+  fileList.innerHTML = allSelectedFiles.map(f => `<div>📄 ${f.webkitRelativePath || f.name}</div>`).join('');
+}
+
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const fileInput = document.getElementById("fileInput");
-  const statusDiv = document.getElementById("uploadStatus");
-  const file = fileInput.files[0];
-  if (!file) return;
+  if (!allSelectedFiles.length) return;
 
   const formData = new FormData();
-  formData.append("file", file);
+  allSelectedFiles.forEach(file => formData.append("file", file));
 
-  statusDiv.style.display = "block";
-  statusDiv.textContent = "⏳ Uploading to FAISS...\n";
+  uploadStatus.style.display = "block";
+  uploadStatus.textContent = "⏳ Uploading to FAISS...\n";
 
-  // Cool Matrix-style dots
   const interval = setInterval(() => {
-    statusDiv.textContent += Math.random().toString(36).substring(2, 5) + "\n";
-    statusDiv.scrollTop = statusDiv.scrollHeight;
+    uploadStatus.textContent += Math.random().toString(36).substring(2, 5) + "\n";
+    uploadStatus.scrollTop = uploadStatus.scrollHeight;
   }, 100);
 
   try {
@@ -115,13 +140,20 @@ document.getElementById("uploadForm").addEventListener("submit", async function(
     });
     const result = await res.json();
     clearInterval(interval);
-    statusDiv.textContent += "\n✅ " + result.message;
+
+    if (result.status === "success") {
+      uploadStatus.textContent += "\n✅ " + result.message;
+    } else {
+      uploadStatus.textContent += "\n❌ " + result.message;
+    }
   } catch (err) {
     clearInterval(interval);
-    statusDiv.textContent += "\n❌ Upload failed. Please try again.";
+    uploadStatus.textContent += "\n❌ Upload failed. Please try again.";
     console.error(err);
   }
 });
+
+
 async function runAgentPlanner() {
   const input = document.getElementById("input").value.trim();
   const wrapper = document.getElementById("agentic-response");
@@ -268,7 +300,6 @@ async function refreshMetrics() {
     console.error("Failed to fetch metrics:", err);
   }
 }
-
 
   // 👇 Hide sidebar on load
   window.onload = () => {

@@ -1,4 +1,7 @@
 import os
+import boto3
+import requests
+
 from flask import Flask, request, jsonify, render_template, send_file, send_from_directory
 
 from io import BytesIO
@@ -11,6 +14,7 @@ from rag_setup import create_faiss_index # 👈 Make sure load_and_split_file ex
 from planner_agent import plan_and_execute
 from models import SessionLocal, ChatHistory, MigrationStats  # Already imported ChatHistory
 from sqlalchemy import or_
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -66,6 +70,54 @@ def update_migration_stat(field_name, increment=1, db_session=None):
         db_session.close()
 
 
+def get_azure_vm_price(vm_size="Standard_B1s", region="eastus"):
+    url = "https://prices.azure.com/api/retail/prices"
+    params = {
+        "$filter": f"serviceName eq 'Virtual Machines' and armRegionName eq '{region}' and skuName eq '{vm_size}'"
+    }
+
+    try:
+        res = requests.get(url, params=params)
+        data = res.json()
+        items = data.get("Items", [])
+        if items:
+            return f"{items[0]['retailPrice']} {items[0]['currencyCode']}/hour for {vm_size} in {region}"
+        else:
+            return "Price not found"
+    except Exception as e:
+        print(f"Error fetching Azure price: {e}")
+        return "Error retrieving price"
+
+
+def get_aws_ec2_price(instance_type="t3.micro", region="US East (N. Virginia)"):
+    try:
+        client = boto3.client("pricing", region_name="us-east-1")
+
+        response = client.get_products(
+            ServiceCode="AmazonEC2",
+            Filters=[
+                {"Type": "TERM_MATCH", "Field": "instanceType", "Value": instance_type},
+                {"Type": "TERM_MATCH", "Field": "location", "Value": region},
+                {"Type": "TERM_MATCH", "Field": "operatingSystem", "Value": "Linux"},
+                {"Type": "TERM_MATCH", "Field": "preInstalledSw", "Value": "NA"},
+                {"Type": "TERM_MATCH", "Field": "capacitystatus", "Value": "Used"},
+                {"Type": "TERM_MATCH", "Field": "tenancy", "Value": "Shared"}
+            ],
+            MaxResults=1
+        )
+
+        price_item = response['PriceList'][0]
+        import json
+        price_data = json.loads(price_item)
+
+        price_dimensions = list(price_data['terms']['OnDemand'].values())[0]['priceDimensions']
+        price = list(price_dimensions.values())[0]['pricePerUnit']['USD']
+        return f"${price}/hour for {instance_type} in {region}"
+    except Exception as e:
+        print(f"Error fetching AWS price: {e}")
+        return "Error retrieving price"
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -73,8 +125,10 @@ def home():
 @app.route("/agent", methods=["POST"])
 def agent_chat():
     user_input = request.json.get("message", "")
-    docs = db.similarity_search(user_input, k=6)
+    docs = db.similarity_search(user_input, k=10)
     context = "\n\n".join(doc.page_content for doc in docs)
+    azure_price = get_azure_vm_price()
+    aws_price = get_aws_ec2_price()
 
     keywords = ["migration", "cloud", "aws", "azure", "infrastructure", "plan", "roadmap", "rehost", "replatform"]
     is_migration_request = any(word in user_input.lower() for word in keywords)
@@ -89,6 +143,10 @@ Use only the data below as your source of truth:
 Structure your answer by year (Year 1, Year 2, Year 3), and include phases like: discovery, planning, proof of concept (POC), lift-and-shift, optimization, and cloud-native rebuild.
 
 Assume the user wants performance, security, and cost-efficiency.
+
+You may reference the following example cloud cost estimates:
+- Azure VM (Standard_B1s in eastus): **{azure_price}**
+- AWS EC2 (t3.micro in US East): **{aws_price}**
 
 When recommending AWS or Azure cloud services, include relevant documentation or pricing tools using **Markdown links**. For example:
 - [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices)
@@ -122,7 +180,7 @@ Use the following as source context only:
         model=DEPLOYMENT,
         messages=messages,
         temperature=0.7,
-        max_tokens=3000
+        max_tokens=1000
     )
 
     reply = response.choices[0].message.content
@@ -150,7 +208,9 @@ Use the following as source context only:
 
     return jsonify({
     "reply": reply,
-    "plan_id": plan_id if is_migration_request else None
+    "plan_id": plan_id if is_migration_request else None,
+    "aws_price": aws_price,
+    "azure_price": azure_price
 })
 
 
@@ -232,47 +292,63 @@ def get_docs():
     ]
     return jsonify({"documents": previews})
 
-@app.route("/upload", methods=["POST"])
-def upload_file():
-    file = request.files.get("file")
-    if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
+@app.route("/upload", methods=["POST"]) 
+def upload_files():
+    files = request.files.getlist("file")
+    uploaded_files = []
+    saved_paths = []
 
-        try:
-            global db
-            db = create_faiss_index(incremental=True, new_file_path=file_path)
+    if not files:
+        return jsonify({
+            "status": "error",
+            "message": "❌ No files uploaded"
+        }), 400
 
-            # ✅ Increment uploaded document count
-            db_session = SessionLocal()
-            stats = db_session.query(MigrationStats).first()
-            if not stats:
-                stats = MigrationStats()
-                db_session.add(stats)
-                stats.documents_uploaded = 1
-            else:
-                stats.documents_uploaded = (stats.documents_uploaded or 0) + 1
+    for file in files:
+        if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
+            # 🌐 Preserve subfolder structure from webkitdirectory
+            full_path = os.path.normpath(file.filename)  # may include subdirectories
+            secure_path = secure_filename(full_path)     # secure each sub-part
+            destination_path = os.path.join(UPLOAD_FOLDER, secure_path)
+            os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+            file.save(destination_path)
 
-            db_session.commit()
-            db_session.close()
-
-            return jsonify({
-                "status": "success",
-                "message": f"✅ File '{filename}' uploaded and indexed."
-            }), 200
-
-        except Exception as e:
+            uploaded_files.append(file.filename)
+            saved_paths.append(destination_path)
+        else:
             return jsonify({
                 "status": "error",
-                "message": f"❌ Error updating index: {str(e)}"
-            }), 500
+                "message": f"❌ Unsupported file type: {file.filename}"
+            }), 400
 
-    return jsonify({
-        "status": "error",
-        "message": "Unsupported file type"
-    }), 400
+    try:
+        # ✅ Index each file one at a time using incremental FAISS updates
+        global db
+        for path in saved_paths:
+            db = create_faiss_index(incremental=True, new_file_path=path)
+
+        # ✅ Increment metrics
+        db_session = SessionLocal()
+        stats = db_session.query(MigrationStats).first()
+        if not stats:
+            stats = MigrationStats()
+            db_session.add(stats)
+            stats.documents_uploaded = len(uploaded_files)
+        else:
+            stats.documents_uploaded = (stats.documents_uploaded or 0) + len(uploaded_files)
+        db_session.commit()
+        db_session.close()
+
+        return jsonify({
+            "status": "success",
+            "message": f"✅ Uploaded and indexed: {', '.join(uploaded_files)}"
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"❌ Error indexing documents: {str(e)}"
+        }), 500
 
 @app.route("/uploads")
 def view_uploaded_documents():
@@ -348,7 +424,7 @@ def list_plans():
     db_session = SessionLocal()
 
     # Build a filter that checks if AI response contains any keyword (case-insensitive)
-    filters = [ChatHistory.ai_response.ilike(f"%{kw}%") for kw in keywords]
+    filters = [ChatHistory.user_input.ilike(f"%{kw}%") for kw in keywords]
 
     plans = db_session.query(ChatHistory)\
         .filter(or_(*filters))\
@@ -358,6 +434,9 @@ def list_plans():
     db_session.close()
 
     return render_template("plans.html", plans=plans)
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

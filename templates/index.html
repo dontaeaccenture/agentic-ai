@@ -40,7 +40,7 @@
   </nav>
 </header>
 <div class="container">
-<h1 id="title-style">Cloud Migration Chat Assistant</h1>
+<!-- <h1 id="title-style">Cloud Migration Chat Assistant</h1> -->
 <div class="tabs">
 <button class="tab-button active" onclick="switchTab('chatTab', this)">💬 Chat</button>
 <!-- <button class="tab-button" onclick="switchTab('docsTab', this)">📂 View Docs</button> -->
@@ -110,16 +110,33 @@
 <div id="docs">📄 Loading document previews...</div>
 </div>
 <div class="tab-content" id="uploadTab">
-<div class="upload-box">
-<h3>📤 Upload Infrastructure Documents</h3>
-<form id="uploadForm">
-<input id="fileInput" name="file" required="" style="color:black" type="file"/>
-<button type="submit">Upload</button>
-</form>
-<div class="matrix-display" id="uploadStatus" style="display:none; margin-top: 20px; white-space: pre; font-family: 'Courier New'; color: lightsteelblue;"></div>
-<p id="upload-msg"></p>
+  <div class="upload-box">
+    <h3>📤 Upload Infrastructure Documents</h3>
+
+    <div class="upload-container">
+      <form id="uploadForm" enctype="multipart/form-data">
+          <button type="submit" class="send upload-btn">⬆️ Upload Selected</button>
+          <!-- Upload Individual Files -->
+  <label for="fileUploadFiles" class="upload-label">📄 Upload Files</label>
+  <input type="file" id="fileUploadFiles" name="file" multiple style="display:none;color: black;">
+
+  <!-- Upload Folder -->
+  <label for="fileUploadFolder" class="upload-label">📁 Upload Folder</label>
+  <input type="file" id="fileUploadFolder" name="file" multiple webkitdirectory directory style="display:none;color: black;">
+
+        <div id="fileList" class="file-list" style="color: black;"></div>
+
+        <div class="matrix-display" id="uploadStatus"></div>
+
+
+
+        <p id="upload-msg"></p>
+      </form>
+    </div>
+  </div>
 </div>
-</div>
+
+
 <div class="tab-content" id="metricsTab">
   <div class="upload-box">
     <h3>📈 Migration Metrics</h3>
