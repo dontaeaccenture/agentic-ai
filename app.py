@@ -15,6 +15,7 @@ from planner_agent import plan_and_execute
 from models import SessionLocal, ChatHistory, MigrationStats  # Already imported ChatHistory
 from sqlalchemy import or_
 from werkzeug.utils import secure_filename
+from botocore.session import Session
 
 load_dotenv()
 
@@ -70,28 +71,65 @@ def update_migration_stat(field_name, increment=1, db_session=None):
         db_session.close()
 
 
-def get_azure_vm_price(vm_size="Standard_B1s", region="eastus"):
+import requests
+
+def get_azure_vm_price(vm_size="Standard_D2s_v3", region="eastus"):
     url = "https://prices.azure.com/api/retail/prices"
-    params = {
-        "$filter": f"serviceName eq 'Virtual Machines' and armRegionName eq '{region}' and skuName eq '{vm_size}'"
+    base_filter = (
+        f"serviceName eq 'Virtual Machines' and "
+        f"armRegionName eq '{region}' and "
+        f"priceType eq 'Consumption'"
+    )
+
+    # Step 1: Try exact match
+    exact_params = {
+        "$filter": base_filter + f" and skuName eq '{vm_size}'"
     }
 
     try:
-        res = requests.get(url, params=params)
+        res = requests.get(url, params=exact_params)
         data = res.json()
         items = data.get("Items", [])
+        print("Request URL:", res.url)
+        print("Items found:", len(items))
+
         if items:
-            return f"{items[0]['retailPrice']} {items[0]['currencyCode']}/hour for {vm_size} in {region}"
-        else:
-            return "Price not found"
+            sorted_items = sorted(items, key=lambda x: x.get("retailPrice", float('inf')))
+            best_price = sorted_items[0]
+            return f"${best_price['retailPrice']} {best_price['currencyCode']}/hour for {vm_size} in {region}"
+
+        # Step 2: If not found, fallback to related SKUs (e.g., Standard_D2s*)
+        fallback_params = {
+            "$filter": base_filter  # broader search
+        }
+
+        fallback_res = requests.get(url, params=fallback_params)
+        fallback_data = fallback_res.json()
+        fallback_items = fallback_data.get("Items", [])
+        related = [item for item in fallback_items if vm_size.split('_')[0] in item.get("skuName", "")]
+
+        print(f"Fallback matched {len(related)} related SKUs")
+
+        if related:
+            sorted_related = sorted(related, key=lambda x: x.get("retailPrice", float('inf')))
+            alt = sorted_related[0]
+            return f"ℹ️ Fallback price: ${alt['retailPrice']} {alt['currencyCode']}/hr for {alt['skuName']} in {region}"
+
+        return f"Azure: Price not found for {vm_size} in {region}, no fallback available"
+
     except Exception as e:
         print(f"Error fetching Azure price: {e}")
-        return "Error retrieving price"
+        return "Azure: Error retrieving price"
 
 
 def get_aws_ec2_price(instance_type="t3.micro", region="US East (N. Virginia)"):
     try:
-        client = boto3.client("pricing", region_name="us-east-1")
+        # Optional: Print to confirm it's loaded (remove in prod)
+        print("Access Key:", os.getenv("AWS_ACCESS_KEY_ID"))
+
+# Initialize boto3 client
+        #pricing_client = boto3.client("pricing")
+        client = boto3.client("pricing")
 
         response = client.get_products(
             ServiceCode="AmazonEC2",
@@ -140,22 +178,38 @@ You are a senior cloud architect tasked with creating a structured, realistic 3-
 Use only the data below as your source of truth:
 \n\n{context}\n\n
 
-Structure your answer by year (Year 1, Year 2, Year 3), and include phases like: discovery, planning, proof of concept (POC), lift-and-shift, optimization, and cloud-native rebuild.
+The uploaded documents include:
+- `application_dependencies.csv`: Lists app-to-app and app-to-db relationships.
+- `applications.csv`: Metadata about deployed apps (name, function, owner, etc).
+- `virtual_machines.csv`: Inventory of VMs (CPU, RAM, OS, workload).
+- `network_links.csv`: Existing LAN/WAN connections and latency constraints.
+- `physical_servers.csv`: Legacy servers that may need rehosting or refactoring.
+- `storage_volumes.csv`: Attached storage volumes and sizes.
+- `.pdf` files: Contain lease expiration details that can guide facility transitions.
 
-Assume the user wants performance, security, and cost-efficiency.
+🧠 Based on this, your plan should:
+1. Group applications by dependency (from `application_dependencies.csv`) and prioritize tightly coupled services together.
+2. Recommend Azure or AWS instance types that match existing VMs.
+3. Plan for storage and network transitions using attached volume and link data.
+4. Take into account lease expiration timelines from PDFs to inform migration waves.
+5. Include fallback strategies for apps on legacy hardware that may not rehost well.
 
-You may reference the following example cloud cost estimates:
+📅 Structure the migration plan in 3 phases:
+- **Year 1:** Discovery, Assessment, Proof of Concept (POC)
+- **Year 2:** Lift-and-Shift and Hybrid Operation
+- **Year 3:** Optimization and Cloud-Native Refactoring
+
+Include estimated cloud costs when possible using the following:
 - Azure VM (Standard_B1s in eastus): **{azure_price}**
 - AWS EC2 (t3.micro in US East): **{aws_price}**
 
-When recommending AWS or Azure cloud services, include relevant documentation or pricing tools using **Markdown links**. For example:
-- [Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices)
+When recommending cloud services, include **Markdown links** to:
 - [Azure Pricing Calculator](https://azure.microsoft.com/en-us/pricing/calculator/)
 - [AWS Pricing Calculator](https://calculator.aws.amazon.com/)
-- [AWS Pricing API Docs](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/price-changes.html)
 
-Your response should be professional, actionable, and formatted clearly using Markdown (headings, bullet points, etc.).
+Your response must be professional, actionable, and clearly formatted using Markdown (headings, tables, bullet points, etc.).
 """
+
 
         messages = [
             { "role": "system", "content": system_prompt },
@@ -179,7 +233,7 @@ Use the following as source context only:
     response = client.chat.completions.create(
         model=DEPLOYMENT,
         messages=messages,
-        temperature=0.7,
+        temperature=0.5,
         max_tokens=1000
     )
 
@@ -236,7 +290,7 @@ Use only the data below as your source of truth:
     response = client.chat.completions.create(
         model=DEPLOYMENT,
         messages=messages,
-        temperature=0.7,
+        temperature=0.5,
         max_tokens=1000
     )
 
@@ -292,7 +346,7 @@ def get_docs():
     ]
     return jsonify({"documents": previews})
 
-@app.route("/upload", methods=["POST"]) 
+@app.route("/upload", methods=["POST"])
 def upload_files():
     files = request.files.getlist("file")
     uploaded_files = []
@@ -306,13 +360,16 @@ def upload_files():
 
     for file in files:
         if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
-            # 🌐 Preserve subfolder structure from webkitdirectory
-            full_path = os.path.normpath(file.filename)  # may include subdirectories
-            secure_path = secure_filename(full_path)     # secure each sub-part
+            full_path = os.path.normpath(file.filename)
+            secure_path = secure_filename(full_path)
             destination_path = os.path.join(UPLOAD_FOLDER, secure_path)
             os.makedirs(os.path.dirname(destination_path), exist_ok=True)
-            file.save(destination_path)
 
+            if os.path.exists(destination_path):
+                print(f"⚠️ Skipping duplicate file: {secure_path}")
+                continue
+
+            file.save(destination_path)
             uploaded_files.append(file.filename)
             saved_paths.append(destination_path)
         else:
@@ -327,7 +384,7 @@ def upload_files():
         for path in saved_paths:
             db = create_faiss_index(incremental=True, new_file_path=path)
 
-        # ✅ Increment metrics
+        # ✅ Update document count
         db_session = SessionLocal()
         stats = db_session.query(MigrationStats).first()
         if not stats:

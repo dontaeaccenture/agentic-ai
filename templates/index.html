@@ -9,59 +9,40 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-<link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
 <title>Agentic AI – Corporate Cloud Assistant</title>
 
 </head>
 <body>
-<header class="top-header">
-  <div class="left-controls">
+  <div class="main-wrapper">
 
-    <span id="toggle-history" onclick="toggleSidebar()" title="Toggle Chat History">
-      📜
-    </span>
-    <span id="new-chat" onclick="startNewChat()" title="Start New Chat">
-      🆕
-    </span>
-        <span id="toggleMetrics" title="Toggle Metrics" onclick="toggleMetrics()">
-      📊
-        </span>
-  </div>
-  
-  <div class="logo-title">
-    <img src="{{ url_for('static', filename='wrangler.jpg') }}" alt="Cloud Wrangler" />
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="{{ url_for('static', filename='newlogo.png') }}" alt="Cloud Wrangler" />
     <h1>CLOUD WRANGLER</h1>
   </div>
+<div class="sidebar-metrics">
+<button class="sidebar-metric-button" onclick="window.open('/plans', '_blank')"> 
+  📄 Plans: <span id="plansCount">0</span>
+</button>
 
-  <nav class="top-nav">
-    <a href="/">Home</a>
-    <a href="/uploads">Docs</a>
-  </nav>
-</header>
-<div class="container">
-<!-- <h1 id="title-style">Cloud Migration Chat Assistant</h1> -->
-<div class="tabs">
-<button class="tab-button active" onclick="switchTab('chatTab', this)">💬 Chat</button>
-<!-- <button class="tab-button" onclick="switchTab('docsTab', this)">📂 View Docs</button> -->
-<button class="tab-button" onclick="switchTab('uploadTab', this)">📤 Upload Docs</button>
-<!-- <button class="tab-button" onclick="switchTab('metricsTab', this)">📊 Metrics</button> -->
-
-</div> 
-<div id="metrics-dashboard" class="metrics-box"> 
-  <h3>📊 Migration Activity Metrics</h3>
-  <div class="metric-row">
-    <button class="metric-button" onclick="location.href='/plans'">
-      📝 <strong>Plans Generated:</strong> <span id="plansCount">0</span>
-    </button>
-    <button class="metric-button" onclick="location.href='/uploads'">
-      📂 <strong>Documents Uploaded:</strong> <span id="docsCount">0</span>
-    </button>
-  </div>
+  <button class="sidebar-metric-button" onclick="window.open('/uploads', '_blank')">
+    📁 Docs: <span id="docsCount">0</span>
+  </button>
 </div>
+
+  <nav class="sidebar-nav">
+    <button class="tab-button" id="new-chat" onclick="startNewChat()" title="Start New Chat">🆕 Start New Chat</button>
+    <button class="tab-button" id="toggle-history" onclick="toggleSidebar()" title="Toggle Chat History">📜 Chat History</button>
+  </nav>
+</aside>
+
+<main class="main-content">
+  <section class="chat-section">
 <div id="chatTab" class="tab-content active collapsed">
   <!-- Sidebar -->
-<div id="sidebar">
+<div id="sidebar" style="width: 200px;">
   <h3>🕘 Chat History</h3>
   <ul id="chat-history" style="list-style: none; padding-left: 0;"></ul>
 </div>
@@ -69,7 +50,7 @@
 <!-- Chat Window -->
 <div id="chat">
 <div class="callout">
-<strong>🤖 Welcome to Agentic AI!</strong>
+<strong>🤖 Welcome to Cloud Wrangler!</strong>
 <p>
         I’m your cloud migration assistant. I can:
 </p>
@@ -81,22 +62,19 @@
         Type a question or select a suggested prompt to begin.
       </div>
 </div>
-<!-- Planner agent -->
-<div id="agentic-response" style="display: none; margin-top: 20px;">
-<div class="planner-card">
-<div class="planner-header">🧠 Planner Agent Response</div>
-<div class="planner-body" id="planner-content">
-<em>Loading plan...</em>
+<!-- Horse Loading Animation -->
+<div id="loading-spinner" style="display: none; text-align: center; margin-top: 20px;">
+  <img src="{{ url_for('static', filename='horse-loader.gif') }}" alt="Loading..." width="80">
+  <p style="color: #1657c2; font-weight: bold;">The Wrangler is saddling up...</p>
 </div>
-</div>
-</div>
+
 <div id="suggestions">
 <span class="bubble" onclick="setInput('Generate a 3-year AWS and Azure migration plan')">💡 Generate migration plan</span>
 <span class="bubble" onclick="setInput('Which workloads should I migrate first based on complexity?')">🧩 Prioritize workloads</span>
 <span class="bubble" onclick="setInput('Summarize the key points from the uploaded infrastructure docs')">🧠 Summarize infrastructure</span>
 </div>
 <div class="ux-hint">💬 Ask anything – I’ll route your message to the right assistant.</div>
-<textarea id="input" placeholder="Ask your migration assistant." rows="4"></textarea>
+<textarea id="input" placeholder="Ask your migration assistant." rows="4" style="padding:0;background-color: #f2f8fc; color: #1e293b;"></textarea>
 <button class="send" onclick="send()" title="Use for any task like 'Generate a migration plan', 'Summarize documents', etc.">Send</button>
 <button class="send" onclick="downloadPlan()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left;">📥 Download Chat</button>
 <button class="send" onclick="downloadPDF()" style="background: #eee; color: #1657c2; border: 1px solid #1657c2; float: left; margin-right: 10px; visibility: hidden;">
@@ -106,13 +84,11 @@
 <div style="clear: both;"></div>
 </div>
 </div>
-<div class="tab-content" id="docsTab">
-<div id="docs">📄 Loading document previews...</div>
-</div>
-<div class="tab-content" id="uploadTab">
+</section>
+<hr style="margin: 20px 0;" />
+  <section class="upload-section">
   <div class="upload-box">
     <h3>📤 Upload Infrastructure Documents</h3>
-
     <div class="upload-container">
       <form id="uploadForm" enctype="multipart/form-data">
           <button type="submit" class="send upload-btn">⬆️ Upload Selected</button>
@@ -134,8 +110,12 @@
       </form>
     </div>
   </div>
+</section>
+  </main>
+  </div>
+<div class="tab-content" id="docsTab">
+<div id="docs">📄 Loading document previews...</div>
 </div>
-
 
 <div class="tab-content" id="metricsTab">
   <div class="upload-box">

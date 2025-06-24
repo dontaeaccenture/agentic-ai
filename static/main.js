@@ -19,6 +19,7 @@ function send() {
   const chat = document.getElementById("chat");
   const message = input.value.trim();
   if (!message) return;
+  document.getElementById("loading-spinner").style.display = "block";
 
   if (!chatInitialized) {
     chat.innerHTML = "";
@@ -35,6 +36,8 @@ function send() {
   })
   .then(res => res.json())
   .then(data => { 
+        document.getElementById("loading-spinner").style.display = "none";
+
     const formatted = marked.parse(data.reply);
     const planId = data.plan_id;
 
@@ -240,7 +243,7 @@ function toggleMetrics() {
     const chat = document.getElementById("chat");
     chat.innerHTML = `
       <div class="callout">
-        <strong>🤖 Welcome to Agentic AI!</strong>
+        <strong>🤖 Welcome to Cloud Wrangler!</strong>
         <p>I’m your cloud migration assistant. I can:</p>
         <ul>
           <li>Generate 3-year AWS & Azure migration plans</li>

@@ -1,20 +1,64 @@
 :root {
-  --bg: #fefdf9;
-  --primary: #1d2a33;
-  --secondary: #dbe6ec;
-  --border: #c2cbd3;
-  --text-main: #1d2a33;
-  --text-accent: #1657c2;
-  --bubble: #e6f0f8;
-  --highlight: #3677a5;
+  --bg: #FBF5ED;                 /* Light cream background */
+  --primary: #4A3729;            /* Deep brown for text/buttons */
+  --accent: #4A9DAF;             /* Teal rope color */
+  --highlight: #C4A77B;          /* Warm tan for accents/borders */
+  --text-main: #4A3729;
+  --text-accent: #4A9DAF;
+  --bubble: #E6F0F8;
+  --border: #DCD0C0;
 }
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-  background-color: #FDF9F4; /* Cream background */
-  color: #1B1C1E;
-    }
+
+
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f4f7;
+  color: #1e293b;
+  height: 100vh;
+  overflow-y: auto;         /* ✅ Only here */
+  overflow-x: hidden;
+}
+html {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+.main-content {
+  padding: 24px 55px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex-grow: 1;
+  background: #FBF5ED;
+  color: var(--text-main);
+  flex-direction: column;
+  align-items: center; /* center child sections */
+  gap: 30px;
+}
+
+.sidebar-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.sidebar-metric-button {
+  background-color: #f2f5fb;
+  border: 1px solid #ccc;
+  color: #000;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border-radius: 10px;
+  text-align: left;
+  cursor: default;
+}
+
 header {
   background-color: #FFFFFF;
     color: #1B1C1E;
@@ -37,16 +81,24 @@ header {
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-    .container {
-      max-width: 780px;
-      margin: 32px auto;
-      padding: 0 16px;
-    }
+.container {
+  width: 100%;
+  padding: 20px 40px;  /* ✅ Reduces vertical & horizontal space */
+  box-sizing: border-box;
+  overflow: visible;      /* 🔄 Let body handle scrolling */
+
+}
+
+h2, h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: bold;
+}
     h1 {
       font-size: 1.5rem;
       color: var(--primary);
       margin-bottom: 24px;
-      font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  font-weight: bold;
     }
     .tabs {
       display: flex;
@@ -62,6 +114,12 @@ header {
   padding: 8px 20px;
   border-radius: 20px;
   transition: 0.2s ease;
+}
+.main-wrapper {
+  display: flex;
+  height: 100vh; /* full screen height */
+    overflow: hidden;
+
 }
 
 .tab-button.active, .tab-button:hover {
@@ -86,7 +144,7 @@ header {
     }
     
 #chat {
-  width: 75%;
+  width: 100%;
   background: #fff;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -96,6 +154,7 @@ header {
   padding: 18px;
   box-shadow: 0 1px 6px rgba(22,87,194,0.05);
     margin-bottom: 1.5rem; /* Ensure space below chat */
+  box-sizing: border-box;
 
 }
 #suggestions {
@@ -209,12 +268,13 @@ header {
   font-weight: 500;
 }
     .callout {
-      background: #e8f1ff;
-      color: #003366;
       padding: 14px 20px;
-      border-left: 5px solid var(--primary);
+      
+  background-color: #EAF5F7;
+  border-left: 6px solid var(--accent);
+  color: var(--text-main);
       border-radius: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
       font-size: 15px;
       line-height: 1.5;
     }
@@ -235,8 +295,9 @@ header {
   margin: 10px 0;
   font-size: 0.95rem;
   line-height: 1.4;
-  max-width: 100%;
-  color: #1d1d1d;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;  color: #1d1d1d;
   overflow-x: auto;
     border-left: 4px solid var(--primary);
     page-break-inside: avoid;
@@ -271,8 +332,8 @@ header {
   margin-bottom: 0;
 }
 button, .send {
-  background-color: #1B1C1E;
-  color: #FFFFFF;
+  background-color: var(--accent);
+  color: #fff;
   border-radius: 8px;
   font-weight: bold;
   padding: 10px 16px;
@@ -320,12 +381,12 @@ button, .send {
 }
 .upload-box {
   background-color: #FFFFFF;
-  border: 1px solid #E3E3E3;
-  max-width: 500px;
-  margin: auto;
+  border: 1px solid var(--highlight);
+  max-width: none;
+    margin: auto;
   padding: 20px;  margin-top: 30px;
   border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
   margin-left: auto;
   margin-right: auto;
 }
@@ -357,6 +418,13 @@ button, .send {
 .upload-box button:hover {
   background-color: #1d4ed8;
 }
+section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
 
 #upload-msg {
   margin-top: 10px;
@@ -370,6 +438,8 @@ button, .send {
   padding: 20px;
   color: #eee;
   margin-top: 20px;
+    max-width: 100%;
+
 }
 
 input[type="file"] {
@@ -431,17 +501,52 @@ button {
   margin-top: 20px;
 }
 
-#sidebar {
-  width: 25%;
-  min-width: 200px;
-  max-width: 260px;
-  background: #f9f9f9;
-  padding: 1rem;
-  overflow-y: auto;
-  border-radius: 12px;
-  border: 1px solid #dcdcdc;
-  height: 100%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+.sidebar {
+  width: 240px;
+  background-color: #4A3729;
+  color: #FBF5ED;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+    overflow-y: auto;
+ min-height: 100vh;
+  box-sizing: border-box;
+  position: relative;
+}
+.sidebar-logo img {
+  width: 100%;
+  border-radius: 6px;
+}
+.sidebar-logo h1 {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-top: 10px;
+  color: white;
+}
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sidebar-nav .tab-button,
+.sidebar-nav .sidebar-link {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.sidebar-nav .tab-button:hover,
+.sidebar-nav .sidebar-link:hover {
+  background-color: #2e2e44;
+}
+
+.sidebar-metrics {
+  text-align: center;
 }
 #toggleSidebar
 {
@@ -454,6 +559,9 @@ button {
 }
 #chatTab.collapsed #sidebar {
   display: none;
+}
+#chatTab {
+  padding-top: 10px;    /* ✅ Softens top gap */
 }
 
 #chatTab.collapsed #chat {
@@ -478,10 +586,10 @@ button {
 
 .metrics-box {
   background-color: #FFFFFF;
-  border: 1px solid #E3E3E3;
+  border: 1px solid var(--highlight);
   padding: 16px 20px;
   border-radius: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.04);
   width: 100%;
 }
@@ -512,7 +620,7 @@ button {
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 button:hover {
-  background-color: #4A90A4;
+  background-color: var(--highlight);
 }
 .upload-card {
   background: #f1f7fe;
@@ -539,7 +647,7 @@ button:hover {
 }
 
 #chat-history {
-  max-height: 400px;          /* You can adjust this height */
+  max-height: 600px;          /* You can adjust this height */
   overflow-y: auto;           /* Enables vertical scrolling */
   padding-right: 6px;         /* Optional: space for scrollbar */
   scrollbar-width: thin;      /* For Firefox */
@@ -632,4 +740,23 @@ button:hover {
   font-size: 12px;
   width: 100%;
   box-sizing: border-box;
+}
+.chat-section,
+.upload-section {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto 30px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+#loading-spinner img {
+  animation: bounce 1s infinite ease-in-out;
 }
